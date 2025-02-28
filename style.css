@@ -7,17 +7,6 @@ body {
     color: #8a2be2;
 }
 
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    box-shadow: 0 0 50px #8a2be2;
-    border-radius: 10px;
-    background: #fffefe;
-    box-sizing: border-box;
-}
-
 hr {
     color: #fff;
     border-color: rgba(138, 43, 226, 0.2);
