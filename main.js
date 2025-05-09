@@ -1,86 +1,41 @@
-const express = require('express');
-const mysql = require('mysql2');
-const nodemailer = require('nodemailer');
-const cors = require('cors');
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-// Veritabanı bağlantıları
-const databases = {
-    catmail_db: mysql.createConnection({ host: 'localhost', user: 'root', password: '', database: 'catmail_db' }),
-    database2: mysql.createConnection({ host: 'localhost', user: 'root', password: '', database: 'database2' }),
-    database3: mysql.createConnection({ host: 'localhost', user: 'root', password: '', database: 'database3' })
-};
-
-// Veritabanına bağlanma
-Object.values(databases).forEach(db => db.connect(err => {
-    if (err) console.error('Veritabanı bağlantı hatası:', err);
-    else console.log('Veritabanına bağlandı');
-}));
-
-// Email ekleme endpointi
-app.post('/add-email', (req, res) => {
-    const { email, database } = req.body;
-    if (!email || !database || !databases[database]) {
-        return res.status(400).json({ message: 'Geçersiz giriş' });
-    }
-    
-    const db = databases[database];
-    db.query('INSERT INTO emails (email) VALUES (?)', [email], (err) => {
-        if (err) return res.status(500).json({ message: 'Veritabanı hatası' });
-        res.json({ message: 'E-posta başarıyla eklendi' });
-    });
-});
-
-// Email listesini alma endpointi
-app.get('/get-emails/:database', (req, res) => {
-    const { database } = req.params;
-    if (!database || !databases[database]) {
-        return res.status(400).json({ message: 'Geçersiz veritabanı seçimi' });
-    }
-    
-    const db = databases[database];
-    db.query('SELECT email FROM emails', (err, results) => {
-        if (err) return res.status(500).json({ message: 'Veritabanı hatası' });
-        res.json(results);
-    });
-});
-
-// Toplu mail gönderme endpointi
-app.post('/send-emails', (req, res) => {
-    const { database } = req.body;
-    if (!database || !databases[database]) {
-        return res.status(400).json({ message: 'Geçersiz veritabanı seçimi' });
-    }
-    
-    const db = databases[database];
-    db.query('SELECT email FROM emails', (err, results) => {
-        if (err) return res.status(500).json({ message: 'Veritabanı hatası' });
-        
-        const emailList = results.map(row => row.email);
-        
-        // Nodemailer ile e-posta gönderme
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: 'your-email@gmail.com', pass: 'your-password' }
+<script>
+        // Mobile menu toggle functionality
+        document.getElementById('leftMenuToggle').addEventListener('click', function() {
+            document.getElementById('leftNavbar').classList.toggle('active');
         });
         
-        const mailOptions = {
-            from: 'your-email@gmail.com',
-            to: emailList.join(','),
-            subject: 'Toplu Mail',
-            text: 'Bu bir test mailidir.'
-        };
-        
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) return res.status(500).json({ message: 'E-posta gönderme hatası' });
-            res.json({ message: 'E-postalar başarıyla gönderildi' });
+        document.getElementById('rightMenuToggle').addEventListener('click', function() {
+            document.getElementById('rightNavbar').classList.toggle('active');
         });
-    });
-});
-
-app.listen(3000, () => console.log('Server 3000 portunda çalışıyor.'));
-
-
+        
+        // Simulate visitor count (in a real app, this would come from your backend)
+        function updateVisitorCount() {
+            // Get current count from localStorage or use a random number
+            let count = localStorage.getItem('visitorCount') || Math.floor(Math.random() * 5000) + 1000;
+            count = parseInt(count) + 1;
+            localStorage.setItem('visitorCount', count);
+            
+            // Format number with commas
+            document.getElementById('visitorCount').textContent = count.toLocaleString();
+        }
+        
+        // Initialize visitor count
+        updateVisitorCount();
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
