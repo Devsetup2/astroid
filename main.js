@@ -1,4 +1,4 @@
-<script>
+
         // Mobile menu toggle functionality
         document.getElementById('leftMenuToggle').addEventListener('click', function() {
             document.getElementById('leftNavbar').classList.toggle('active');
@@ -38,4 +38,4 @@
                 }
             });
         });
-    </script>
+    
