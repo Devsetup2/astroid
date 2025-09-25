@@ -1,179 +1,922 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="style.css">
-    <title>SetupDev</title>
-   <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="setupdev" data-description="Support me on Buy me a coffee!" data-message="" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
-    <meta name="description" content="Author: Muammer Altunkan Finance & Tecnology Blog">                 
+    <title>Naturixx - Kişiselleştirilmiş Sağlık Takviyeleri</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="mobile-menu-toggle" id="leftMenuToggle">☰ Left Menu</div>
-    
-    <div class="container">
-        <nav class="left-navbar" id="leftNavbar">
-            <div class="logo">SetupDev</div>
-            <ul class="nav-menu">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Categories</a></li>
-                <li><a href="#">Popular Posts</a></li>
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">Archives</a></li>
-            </ul>
-            
-            <div class="social-icons">
-                <a href="#"><i class="fab fa-facebook-f">f</i></a>
-                <a href="#"><i class="fab fa-twitter">t</i></a>
-                <a href="#"><i class="fab fa-instagram">i</i></a>
-                <a href="#"><i class="fab fa-pinterest">p</i></a>
-            </div>
-            
-            <div class="ad-space">
-                <p>Advertisement</p>
-                <img src="https://via.placeholder.com/250x300" alt="Advertisement">
-            </div>
-            
-            <div class="visitor-counter">
-                <p>Visitors: <span id="visitorCount">1,525k</span></p>
-            </div>
-        </nav>
-        
-        <main class="main-content">
-            <div class="site-title">
-                <h1>SetupDev Blog</h1>
-                <p>Modern Blogging Experience</p>
-            </div>
-            
-            <div class="tags-container">
-                <a href="#" class="tag">Technology</a>
-                <a href="#" class="tag">Design</a>
-                <a href="#" class="tag">Travel</a>
-                <a href="#" class="tag">Food</a>
-                <a href="#" class="tag">Lifestyle</a>
-                <a href="#" class="tag">Business</a>
-                <a href="#" class="tag">Health</a>
-                <a href="#" class="tag">Fashion</a>
-            </div>
-            
-            <div class="blog-posts">
-                <a href="#" title=""><article class="post-card">
-                    <div class="post-image">
-                        <img src="https://via.placeholder.com/600x400" alt="Blog Post Image">
-                    </div>
-                    <div class="post-content">
-                        <h2 class="post-title">The Future of Web Design</h2>
-                        <p class="post-excerpt">Exploring the latest trends and technologies that are shaping the future of web design and user experience.</p>
-                        <div class="post-meta">
-                            <span>May 15, 2023</span>
-                            <span>5 min read</span>
-                        </div>
-                    </div></a>
-                </article>
-                
-                 <a href="#" title=""><article class="post-card">
-                    <div class="post-image">
-                        <img src="https://via.placeholder.com/600x400" alt="Blog Post Image">
-                    </div>
-                    <div class="post-content">
-                        <h2 class="post-title">Sustainable Living in Urban Areas</h2>
-                        <p class="post-excerpt">How to incorporate sustainable practices into your daily urban life without compromising convenience.</p>
-                        <div class="post-meta">
-                            <span>May 10, 2023</span>
-                            <span>8 min read</span>
-                        </div>
-                    </div></a>
-                </article>
-                
-                 <a href="#" title=""><article class="post-card">
-                    <div class="post-image">
-                        <img src="https://via.placeholder.com/600x400" alt="Blog Post Image">
-                    </div>
-                    <div class="post-content">
-                        <h2 class="post-title">The Art of Mindful Productivity</h2>
-                        <p class="post-excerpt">Learn how to be more productive without burning out by practicing mindfulness techniques at work.</p>
-                        <div class="post-meta">
-                            <span>May 5, 2023</span>
-                            <span>6 min read</span>
-                        </div>
-                    </div></a>
-                </article>
-                
-                 <a href="#" title=""><article class="post-card">
-                    <div class="post-image">
-                        <img src="https://via.placeholder.com/600x400" alt="Blog Post Image">
-                    </div>
-                    <div class="post-content">
-                        <h2 class="post-title">Exploring Hidden Gems in Europe</h2>
-                        <p class="post-excerpt">Discover the less-known but breathtaking destinations in Europe that most tourists miss.</p>
-                        <div class="post-meta">
-                            <span>April 28, 2023</span>
-                            <span>10 min read</span>
-                        </div>
-                    </div></a>
-                </article>
-                
-                 <a href="#" title=""><article class="post-card">
-                    <div class="post-image">
-                        <img src="https://via.placeholder.com/600x400" alt="Blog Post Image">
-                    </div>
-                    <div class="post-content">
-                        <h2 class="post-title">The Science of Good Coffee</h2>
-                        <p class="post-excerpt">Understanding the chemistry behind brewing the perfect cup of coffee at home.</p>
-                        <div class="post-meta">
-                            <span>April 22, 2023</span>
-                            <span>7 min read</span>
-                        </div>
-                    </div></a>
-                </article>
-                
-                 <a href="#" title=""><article class="post-card">
-                    <div class="post-image">
-                        <img src="https://via.placeholder.com/600x400" alt="Blog Post Image">
-                    </div>
-                    <div class="post-content">
-                        <h2 class="post-title">Minimalist Wardrobe Essentials</h2>
-                        <p class="post-excerpt">Building a capsule wardrobe that works for all seasons and occasions with just 30 pieces.</p>
-                        <div class="post-meta">
-                            <span>April 15, 2023</span>
-                            <span>9 min read</span>
-                        </div>
-                    </div></a>
-                </article>
-            </div>
-        </main>
-        
-        <div class="mobile-menu-toggle" id="rightMenuToggle">☰ Right Menu</div>
-        
-        <nav class="right-navbar" id="rightNavbar">
-            <ul class="right-menu">
-                <li><a href="#">Latest Posts</a></li>
-                <li><a href="#">Trending Now</a></li>
-                <li><a href="#">Editors' Picks</a></li>
-                <li><a href="#">Most Commented</a></li>
-                <li><a href="#">Newsletter</a></li>
-                <li><a href="#">Subscribe</a></li>
-            </ul>
-            
-            <div class="right-social-icons">
-                <a href="#"><i class="fab fa-youtube">y</i></a>
-                <a href="#"><i class="fab fa-linkedin-in">in</i></a>
-                <a href="#"><i class="fab fa-reddit-alien">r</i></a>
-                <a href="#"><i class="fab fa-tiktok">t</i></a>
-            </div>
-            
-            <div class="ad-space" style="margin-top: 30px;">
-                <p>Sponsored Content</p>
-                <img src="https://via.placeholder.com/250x200" alt="Advertisement">
-            </div>
-        </nav>
-        
-        <footer>
-            <p>&copy; 2023 NeoM Blog. All rights reserved. | Designed with passion</p>
-        </footer>
+<body class="bg-gray-50 font-sans">
+    <!-- Navbar -->
+   <!-- Navbar -->
+<nav class="bg-green-600 text-white p-4 shadow-md">
+    <div class="container mx-auto flex justify-center items-center">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-leaf text-2xl"></i>
+            <h1 class="text-xl font-bold">Naturixx</h1>
+        </div>
     </div>
 
-    <script src="main.js"><script>
+            <button class="md:hidden" id="menuBtn">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden bg-green-700 mt-2 py-2" id="mobileMenu">
+            <a href="#profile" class="block px-4 py-2 hover:bg-green-600">Profil</a>
+            <a href="#dashboard" class="block px-4 py-2 hover:bg-green-600">Dashboard</a>
+            <a href="#recommendations" class="block px-4 py-2 hover:bg-green-600">Öneriler</a>
+            <a href="#progress" class="block px-4 py-2 hover:bg-green-600">İlerleme</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Welcome Section -->
+        <section class="mb-12 text-center">
+            <h2 class="text-3xl font-bold text-green-700 mb-4">Kişiselleştirilmiş Sağlık Takviyeleriniz</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Naturix, yaşam tarzınızı ve sağlık verilerinizi analiz ederek size özel takviye önerileri sunar.</p>
+        </section>
+
+        <!-- User Profile Section -->
+        <section id="profile" class="mb-12 bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-user-circle mr-2"></i> Profil Bilgileri
+            </h3>
+            <form id="userProfileForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">Ad</label>
+                    <input type="text" id="firstName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Soyad</label>
+                    <input type="text" id="lastName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Yaş</label>
+                    <input type="number" id="age" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Cinsiyet</label>
+                    <select id="gender" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="male">Erkek</option>
+                        <option value="female">Kadın</option>
+                        <option value="other">Diğer</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Boy (cm)</label>
+                    <input type="number" id="height" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Kilo (kg)</label>
+                    <input type="number" id="weight" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                        Profili Kaydet
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lifestyle Assessment Section -->
+        <section id="lifestyle" class="mb-12 bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-heartbeat mr-2"></i> Yaşam Tarzı Değerlendirmesi
+            </h3>
+            <form id="lifestyleForm">
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Egzersiz Sıklığı</label>
+                    <select id="exerciseFrequency" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="none">Hiç egzersiz yapmıyorum</option>
+                        <option value="rarely">Ayda 1-2 kez</option>
+                        <option value="moderate">Haftada 1-3 kez</option>
+                        <option value="frequent">Haftada 4-6 kez</option>
+                        <option value="daily">Günde 1 kez veya daha fazla</option>
+                    </select>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Beslenme Alışkanlığı</label>
+                    <select id="dietType" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="standard">Standart beslenme</option>
+                        <option value="vegetarian">Vejetaryen</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="keto">Keto</option>
+                        <option value="paleo">Paleo</option>
+                        <option value="mediterranean">Akdeniz</option>
+                    </select>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Stres Seviyesi</label>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm">Düşük</span>
+                        <input type="range" id="stressLevel" min="1" max="10" value="5" class="w-full">
+                        <span class="text-sm">Yüksek</span>
+                    </div>
+                    <div class="text-center mt-1 text-sm text-gray-600" id="stressLevelValue">5/10</div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Ortalama Uyku Süresi (saat)</label>
+                    <input type="number" id="sleepHours" min="0" max="12" step="0.5" value="7" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Sağlık Geçmişi (varsa)</label>
+                    <textarea id="healthHistory" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Bilinen hastalıklar, alerjiler, kullanılan ilaçlar..."></textarea>
+                </div>
+                
+                <div>
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                        Değerlendirmeyi Kaydet
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="mb-12">
+            <h3 class="text-2xl font-semibold text-green-700 mb-6 flex items-center">
+                <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Health Score Card -->
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl font-bold text-green-600 mb-2" id="healthScore">--</div>
+                    <div class="text-gray-600">Sağlık Puanı</div>
+                    <div class="mt-4 h-2 bg-gray-200 rounded-full">
+                        <div class="h-2 bg-green-500 rounded-full" id="healthScoreBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Sleep Card -->
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl font-bold text-blue-600 mb-2" id="sleepScore">--</div>
+                    <div class="text-gray-600">Uyku Kalitesi</div>
+                    <div class="mt-4 text-sm">
+                        <i class="fas fa-bed text-blue-400"></i> <span id="sleepHoursText">-- saat</span>
+                    </div>
+                </div>
+                
+                <!-- Exercise Card -->
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl font-bold text-orange-600 mb-2" id="exerciseScore">--</div>
+                    <div class="text-gray-600">Egzersiz Seviyesi</div>
+                    <div class="mt-4 text-sm">
+                        <i class="fas fa-running text-orange-400"></i> <span id="exerciseFrequencyText">--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Uyku Takibi (Son 7 Gün)</h4>
+                    <canvas id="sleepChart" height="250"></canvas>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Egzersiz Takibi (Son 7 Gün)</h4>
+                    <canvas id="exerciseChart" height="250"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommendations Section -->
+        <section id="recommendations" class="mb-12 bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-pills mr-2"></i> Kişiselleştirilmiş Takviye Önerileri
+            </h3>
+            
+            <div class="mb-6">
+                <button id="generateRecommendations" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300 flex items-center">
+                    <i class="fas fa-magic mr-2"></i> Önerileri Oluştur
+                </button>
+            </div>
+            
+            <div id="recommendationsContainer" class="hidden">
+                <div class="mb-6 p-4 bg-green-50 rounded-lg">
+                    <h4 class="text-lg font-semibold text-green-700 mb-2">Genel Değerlendirme</h4>
+                    <div id="generalAssessment" class="text-gray-700">
+                        Önerileriniz yükleniyor...
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Recommendations will be added here dynamically -->
+                </div>
+            </div>
+            
+            <div id="loadingIndicator" class="hidden text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600 mb-4"></div>
+                <p class="text-gray-600">Profiliniz analiz ediliyor ve kişiselleştirilmiş öneriler oluşturuluyor...</p>
+            </div>
+        </section>
+
+        <!-- Progress Tracking Section -->
+        <section id="progress" class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                <i class="fas fa-chart-line mr-2"></i> İlerleme Takibi
+            </h3>
+            
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-semibold text-blue-700 mb-2 flex items-center">
+                        <i class="fas fa-bed mr-2"></i> Uyku Kaydı
+                    </h4>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 mb-1">Dünkü uyku süresi (saat)</label>
+                        <input type="number" id="dailySleep" min="0" max="12" step="0.5" class="w-full px-3 py-1 border rounded">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 mb-1">Uyku kalitesi (1-10)</label>
+                        <input type="number" id="sleepQuality" min="1" max="10" class="w-full px-3 py-1 border rounded">
+                    </div>
+                    <button id="saveSleep" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">
+                        Kaydet
+                    </button>
+                </div>
+                
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-semibold text-orange-700 mb-2 flex items-center">
+                        <i class="fas fa-running mr-2"></i> Egzersiz Kaydı
+                    </h4>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 mb-1">Egzersiz süresi (dakika)</label>
+                        <input type="number" id="exerciseDuration" min="0" class="w-full px-3 py-1 border rounded">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 mb-1">Egzersiz yoğunluğu (1-10)</label>
+                        <input type="number" id="exerciseIntensity" min="1" max="10" class="w-full px-3 py-1 border rounded">
+                    </div>
+                    <button id="saveExercise" class="bg-orange-600 text-white px-4 py-1 rounded hover:bg-orange-700">
+                        Kaydet
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h4 class="text-lg font-semibold text-green-700 mb-2 flex items-center">
+                    <i class="fas fa-sticky-note mr-2"></i> Günlük Notlar
+                </h4>
+                <textarea id="dailyNotes" rows="3" class="w-full px-3 py-2 border rounded mb-3" placeholder="Bugün kendinizi nasıl hissediyorsunuz?"></textarea>
+                <button id="saveNotes" class="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">
+                    Notları Kaydet
+                </button>
+            </div>
+        </section>
+    </div>
+    <br>
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 flex justify-around items-center shadow-lg md:hidden">
+            <a href="#profile" class="flex flex-col items-center text-green-600">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-xs mt-1">Profil</span>
+            </a>
+            <a href="#dashboard" class="flex flex-col items-center text-gray-500">
+                <i class="fas fa-tachometer-alt text-lg"></i>
+                <span class="text-xs mt-1">Pano</span>
+            </a>
+            <a href="#recommendations" class="flex flex-col items-center text-gray-500">
+                <i class="fas fa-lightbulb text-lg"></i>
+                <span class="text-xs mt-1">Öneriler</span>
+            </a>
+            <a href="#progress" class="flex flex-col items-center text-gray-500">
+                <i class="fas fa-chart-line text-lg"></i>
+                <span class="text-xs mt-1">İlerleme</span>
+            </a>
+        </div>
+        
+        <!-- Ana içerik için alt padding ekle -->
+        <div class="pb-16 md:pb-0"></div>
+    
+
+    <script>
+        // Uygulama JavaScript kodu
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            menuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Stress level indicator
+            const stressLevel = document.getElementById('stressLevel');
+            const stressLevelValue = document.getElementById('stressLevelValue');
+            
+            stressLevel.addEventListener('input', function() {
+                stressLevelValue.textContent = `${this.value}/10`;
+            });
+            
+            // Load saved data from localStorage
+            loadUserData();
+            
+            // Form submissions
+            document.getElementById('userProfileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveUserProfile();
+            });
+            
+            document.getElementById('lifestyleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveLifestyleData();
+            });
+            
+            // Progress tracking buttons
+            document.getElementById('saveSleep').addEventListener('click', saveSleepData);
+            document.getElementById('saveExercise').addEventListener('click', saveExerciseData);
+            document.getElementById('saveNotes').addEventListener('click', saveDailyNotes);
+            
+            // Generate recommendations
+            document.getElementById('generateRecommendations').addEventListener('click', generateRecommendations);
+            
+            // Initialize charts
+            initializeCharts();
+            
+            // Calculate health score
+            calculateHealthScore();
+        });
+        
+        // Load user data from localStorage
+        function loadUserData() {
+            if (localStorage.getItem('naturixUserProfile')) {
+                const userData = JSON.parse(localStorage.getItem('naturixUserProfile'));
+                
+                // Fill profile form
+                document.getElementById('firstName').value = userData.firstName || '';
+                document.getElementById('lastName').value = userData.lastName || '';
+                document.getElementById('age').value = userData.age || '';
+                document.getElementById('gender').value = userData.gender || 'male';
+                document.getElementById('height').value = userData.height || '';
+                document.getElementById('weight').value = userData.weight || '';
+                
+                // Fill lifestyle form
+                if (userData.lifestyle) {
+                    document.getElementById('exerciseFrequency').value = userData.lifestyle.exerciseFrequency || 'none';
+                    document.getElementById('dietType').value = userData.lifestyle.dietType || 'standard';
+                    document.getElementById('stressLevel').value = userData.lifestyle.stressLevel || 5;
+                    document.getElementById('stressLevelValue').textContent = `${userData.lifestyle.stressLevel || 5}/10`;
+                    document.getElementById('sleepHours').value = userData.lifestyle.sleepHours || 7;
+                    document.getElementById('healthHistory').value = userData.lifestyle.healthHistory || '';
+                }
+                
+                // Update dashboard
+                updateDashboard(userData);
+            }
+            
+            // Load progress data
+            loadProgressData();
+        }
+        
+        // Save user profile data
+        function saveUserProfile() {
+            const userData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value
+            };
+            
+            // Get existing data if any
+            let existingData = {};
+            if (localStorage.getItem('naturixUserProfile')) {
+                existingData = JSON.parse(localStorage.getItem('naturixUserProfile'));
+            }
+            
+            // Merge data
+            const mergedData = {...existingData, ...userData};
+            
+            // Save to localStorage
+            localStorage.setItem('naturixUserProfile', JSON.stringify(mergedData));
+            
+            // Show success message
+            alert('Profil bilgileriniz kaydedildi!');
+            
+            // Update health score
+            calculateHealthScore();
+        }
+        
+        // Save lifestyle data
+        function saveLifestyleData() {
+            const lifestyleData = {
+                exerciseFrequency: document.getElementById('exerciseFrequency').value,
+                dietType: document.getElementById('dietType').value,
+                stressLevel: document.getElementById('stressLevel').value,
+                sleepHours: document.getElementById('sleepHours').value,
+                healthHistory: document.getElementById('healthHistory').value
+            };
+            
+            // Get existing data if any
+            let existingData = {};
+            if (localStorage.getItem('naturixUserProfile')) {
+                existingData = JSON.parse(localStorage.getItem('naturixUserProfile'));
+            }
+            
+            // Merge data
+            const mergedData = {...existingData, lifestyle: lifestyleData};
+            
+            // Save to localStorage
+            localStorage.setItem('naturixUserProfile', JSON.stringify(mergedData));
+            
+            // Show success message
+            alert('Yaşam tarzı bilgileriniz kaydedildi!');
+            
+            // Update dashboard
+            updateDashboard(mergedData);
+            
+            // Update health score
+            calculateHealthScore();
+        }
+        
+        // Load progress data
+        function loadProgressData() {
+            if (localStorage.getItem('naturixProgressData')) {
+                const progressData = JSON.parse(localStorage.getItem('naturixProgressData'));
+                
+                // Fill sleep data if exists
+                if (progressData.sleep) {
+                    document.getElementById('dailySleep').value = progressData.sleep.hours || '';
+                    document.getElementById('sleepQuality').value = progressData.sleep.quality || '';
+                }
+                
+                // Fill exercise data if exists
+                if (progressData.exercise) {
+                    document.getElementById('exerciseDuration').value = progressData.exercise.duration || '';
+                    document.getElementById('exerciseIntensity').value = progressData.exercise.intensity || '';
+                }
+                
+                // Fill notes if exists
+                if (progressData.notes) {
+                    document.getElementById('dailyNotes').value = progressData.notes || '';
+                }
+            }
+        }
+        
+        // Save sleep data
+        function saveSleepData() {
+            const sleepData = {
+                hours: document.getElementById('dailySleep').value,
+                quality: document.getElementById('sleepQuality').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            // Get existing data if any
+            let existingData = {};
+            if (localStorage.getItem('naturixProgressData')) {
+                existingData = JSON.parse(localStorage.getItem('naturixProgressData'));
+            }
+            
+            // Initialize sleepRecords if not exists
+            if (!existingData.sleepRecords) {
+                existingData.sleepRecords = [];
+            }
+            
+            // Add to sleep records (keep last 7 days)
+            existingData.sleepRecords.unshift(sleepData);
+            if (existingData.sleepRecords.length > 7) {
+                existingData.sleepRecords = existingData.sleepRecords.slice(0, 7);
+            }
+            
+            // Add current sleep data
+            existingData.sleep = sleepData;
+            
+            // Save to localStorage
+            localStorage.setItem('naturixProgressData', JSON.stringify(existingData));
+            
+            // Show success message
+            alert('Uyku bilgileriniz kaydedildi!');
+            
+            // Update charts
+            updateSleepChart();
+            
+            // Update health score
+            calculateHealthScore();
+        }
+        
+        // Save exercise data
+        function saveExerciseData() {
+            const exerciseData = {
+                duration: document.getElementById('exerciseDuration').value,
+                intensity: document.getElementById('exerciseIntensity').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            // Get existing data if any
+            let existingData = {};
+            if (localStorage.getItem('naturixProgressData')) {
+                existingData = JSON.parse(localStorage.getItem('naturixProgressData'));
+            }
+            
+            // Initialize exerciseRecords if not exists
+            if (!existingData.exerciseRecords) {
+                existingData.exerciseRecords = [];
+            }
+            
+            // Add to exercise records (keep last 7 days)
+            existingData.exerciseRecords.unshift(exerciseData);
+            if (existingData.exerciseRecords.length > 7) {
+                existingData.exerciseRecords = existingData.exerciseRecords.slice(0, 7);
+            }
+            
+            // Add current exercise data
+            existingData.exercise = exerciseData;
+            
+            // Save to localStorage
+            localStorage.setItem('naturixProgressData', JSON.stringify(existingData));
+            
+            // Show success message
+            alert('Egzersiz bilgileriniz kaydedildi!');
+            
+            // Update charts
+            updateExerciseChart();
+            
+            // Update health score
+            calculateHealthScore();
+        }
+        
+        // Save daily notes
+        function saveDailyNotes() {
+            const notes = document.getElementById('dailyNotes').value;
+            
+            // Get existing data if any
+            let existingData = {};
+            if (localStorage.getItem('naturixProgressData')) {
+                existingData = JSON.parse(localStorage.getItem('naturixProgressData'));
+            }
+            
+            // Add notes
+            existingData.notes = notes;
+            
+            // Save to localStorage
+            localStorage.setItem('naturixProgressData', JSON.stringify(existingData));
+            
+            // Show success message
+            alert('Günlük notlarınız kaydedildi!');
+        }
+        
+        // Initialize charts
+        function initializeCharts() {
+            // Sleep chart
+            const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+            window.sleepChart = new Chart(sleepCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [{
+                        label: 'Uyku Süresi (saat)',
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 12
+                        }
+                    }
+                }
+            });
+            
+            // Exercise chart
+            const exerciseCtx = document.getElementById('exerciseChart').getContext('2d');
+            window.exerciseChart = new Chart(exerciseCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [{
+                        label: 'Egzersiz Süresi (dakika)',
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(234, 88, 12, 0.7)',
+                        borderColor: 'rgba(234, 88, 12, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Update charts with existing data
+            updateSleepChart();
+            updateExerciseChart();
+        }
+        
+        // Update sleep chart with data
+        function updateSleepChart() {
+            if (!localStorage.getItem('naturixProgressData')) return;
+            
+            const progressData = JSON.parse(localStorage.getItem('naturixProgressData'));
+            if (!progressData.sleepRecords) return;
+            
+            // Prepare data for chart
+            const sleepData = [0, 0, 0, 0, 0, 0, 0];
+            
+            progressData.sleepRecords.forEach((record, index) => {
+                if (index < 7) {
+                    sleepData[index] = parseFloat(record.hours) || 0;
+                }
+            });
+            
+            // Update chart
+            window.sleepChart.data.datasets[0].data = sleepData;
+            window.sleepChart.update();
+        }
+        
+        // Update exercise chart with data
+        function updateExerciseChart() {
+            if (!localStorage.getItem('naturixProgressData')) return;
+            
+            const progressData = JSON.parse(localStorage.getItem('naturixProgressData'));
+            if (!progressData.exerciseRecords) return;
+            
+            // Prepare data for chart
+            const exerciseData = [0, 0, 0, 0, 0, 0, 0];
+            
+            progressData.exerciseRecords.forEach((record, index) => {
+                if (index < 7) {
+                    exerciseData[index] = parseInt(record.duration) || 0;
+                }
+            });
+            
+            // Update chart
+            window.exerciseChart.data.datasets[0].data = exerciseData;
+            window.exerciseChart.update();
+        }
+        
+        // Update dashboard with user data
+        function updateDashboard(userData) {
+            if (userData.lifestyle) {
+                // Update sleep info
+                document.getElementById('sleepHoursText').textContent = `${userData.lifestyle.sleepHours || 0} saat`;
+                
+                // Update exercise info
+                const exerciseTexts = {
+                    'none': 'Hiç egzersiz yapmıyorum',
+                    'rarely': 'Ayda 1-2 kez',
+                    'moderate': 'Haftada 1-3 kez',
+                    'frequent': 'Haftada 4-6 kez',
+                    'daily': 'Günde 1 kez veya daha fazla'
+                };
+                document.getElementById('exerciseFrequencyText').textContent = exerciseTexts[userData.lifestyle.exerciseFrequency] || '--';
+            }
+        }
+        
+        // Calculate health score
+        function calculateHealthScore() {
+            if (!localStorage.getItem('naturixUserProfile')) return;
+            
+            const userData = JSON.parse(localStorage.getItem('naturixUserProfile'));
+            if (!userData.lifestyle) return;
+            
+            let score = 50; // Base score
+            
+            // Adjust score based on exercise
+            const exerciseScores = {
+                'none': -20,
+                'rarely': -10,
+                'moderate': 10,
+                'frequent': 20,
+                'daily': 25
+            };
+            score += exerciseScores[userData.lifestyle.exerciseFrequency] || 0;
+            
+            // Adjust score based on sleep
+            const sleepHours = parseFloat(userData.lifestyle.sleepHours) || 0;
+            if (sleepHours >= 7 && sleepHours <= 9) {
+                score += 20;
+            } else if (sleepHours >= 6 && sleepHours < 7) {
+                score += 10;
+            } else if (sleepHours > 9) {
+                score += 5;
+            } else {
+                score -= 10;
+            }
+            
+            // Adjust score based on stress
+            const stressLevel = parseInt(userData.lifestyle.stressLevel) || 5;
+            if (stressLevel <= 3) {
+                score += 15;
+            } else if (stressLevel <= 6) {
+                score += 5;
+            } else {
+                score -= 10;
+            }
+            
+            // Adjust score based on diet
+            const dietScores = {
+                'standard': 0,
+                'vegetarian': 5,
+                'vegan': 5,
+                'keto': 0,
+                'paleo': 5,
+                'mediterranean': 10
+            };
+            score += dietScores[userData.lifestyle.dietType] || 0;
+            
+            // Add recent progress data if available
+            if (localStorage.getItem('naturixProgressData')) {
+                const progressData = JSON.parse(localStorage.getItem('naturixProgressData'));
+                
+                // Sleep quality
+                if (progressData.sleep && progressData.sleep.quality) {
+                    const quality = parseInt(progressData.sleep.quality);
+                    if (quality >= 8) score += 5;
+                    else if (quality >= 5) score += 2;
+                    else score -= 5;
+                }
+                
+                // Exercise
+                if (progressData.exercise) {
+                    const duration = parseInt(progressData.exercise.duration) || 0;
+                    const intensity = parseInt(progressData.exercise.intensity) || 0;
+                    
+                    if (duration >= 30 && intensity >= 5) score += 10;
+                    else if (duration >= 15) score += 5;
+                }
+            }
+            
+            // Ensure score is between 0 and 100
+            score = Math.max(0, Math.min(100, score));
+            
+            // Update UI
+            document.getElementById('healthScore').textContent = Math.round(score);
+            document.getElementById('healthScoreBar').style.width = `${score}%`;
+            
+            // Calculate sleep and exercise scores (simplified)
+            const sleepScore = Math.min(100, Math.round((sleepHours / 8) * 100));
+            document.getElementById('sleepScore').textContent = Math.round(sleepScore);
+            
+            let exerciseScore = 0;
+            if (userData.lifestyle.exerciseFrequency === 'none') exerciseScore = 20;
+            else if (userData.lifestyle.exerciseFrequency === 'rarely') exerciseScore = 40;
+            else if (userData.lifestyle.exerciseFrequency === 'moderate') exerciseScore = 70;
+            else if (userData.lifestyle.exerciseFrequency === 'frequent') exerciseScore = 90;
+            else if (userData.lifestyle.exerciseFrequency === 'daily') exerciseScore = 100;
+            
+            document.getElementById('exerciseScore').textContent = exerciseScore;
+        }
+        
+        // Generate personalized recommendations using AI
+        async function generateRecommendations() {
+            if (!localStorage.getItem('naturixUserProfile')) {
+                alert('Lütfen önce profil bilgilerinizi ve yaşam tarzı verilerinizi kaydedin.');
+                return;
+            }
+            
+            const userData = JSON.parse(localStorage.getItem('naturixUserProfile'));
+            
+            // Show loading indicator
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('recommendationsContainer').classList.add('hidden');
+            
+            try {
+                // Prepare prompt for AI
+                const prompt = `
+                Kullanıcı profili:
+                - Yaş: ${userData.age}
+                - Cinsiyet: ${userData.gender === 'male' ? 'Erkek' : userData.gender === 'female' ? 'Kadın' : 'Diğer'}
+                - Boy: ${userData.height} cm
+                - Kilo: ${userData.weight} kg
+                
+                Yaşam tarzı:
+                - Egzersiz sıklığı: ${userData.lifestyle.exerciseFrequency}
+                - Beslenme tipi: ${userData.lifestyle.dietType}
+                - Stres seviyesi: ${userData.lifestyle.stressLevel}/10
+                - Ortalama uyku: ${userData.lifestyle.sleepHours} saat
+                - Sağlık geçmişi: ${userData.lifestyle.healthHistory || 'Belirtilmemiş'}
+                
+                Bu kullanıcı için kişiselleştirilmiş sağlık takviyesi önerileri oluştur. 
+                Önerileri vitaminler, mineraller, bitkisel takviyeler ve yaşam tarzı önerileri şeklinde kategorize et.
+                Her öneri için kısa bir açıklama ve olası faydalarını belirt.
+                Ayrıca genel bir değerlendirme paragrafı oluştur.
+                `;
+                
+                // Call Gemini API
+                const apiKey = 'AIzaSyCmgbxpxQ0NymprCrxd0kFeqwJpiZ37208';
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }]
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Process the response
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    displayRecommendations(aiResponse);
+                } else {
+                    throw new Error('API yanıtı beklenen formatta değil');
+                }
+            } catch (error) {
+                console.error('AI API hatası:', error);
+                // Fallback to static recommendations if API fails
+                displayRecommendations(getFallbackRecommendations(userData));
+            } finally {
+                document.getElementById('loadingIndicator').classList.add('hidden');
+            }
+        }
+        
+        // Display recommendations on the page
+        function displayRecommendations(responseText) {
+            const container = document.getElementById('recommendationsContainer');
+            const generalAssessment = document.getElementById('generalAssessment');
+            
+            // For demo purposes, we'll just show the raw response
+            // In a real app, you would parse the response and format it properly
+            generalAssessment.innerHTML = responseText;
+            
+            // Clear previous recommendations
+            const recContainer = container.querySelector('.grid');
+            if (recContainer) {
+                recContainer.innerHTML = '';
+            }
+            
+            // Show the container
+            container.classList.remove('hidden');
+        }
+        
+        // Fallback recommendations if API fails
+        function getFallbackRecommendations(userData) {
+            let recommendations = `
+            <h4 class="text-lg font-semibold mb-2">Genel Değerlendirme</h4>
+            <p>Profilinize göre genel sağlık durumunuz ${userData.lifestyle.stressLevel > 6 ? 'stres seviyeniz yüksek olduğundan iyileştirilmeye ihtiyaç duyuyor' : 'oldukça iyi görünüyor'}. 
+            ${userData.lifestyle.sleepHours < 7 ? 'Uyku sürenizi artırmanız önerilir.' : 'Uyku düzeniniz yeterli görünüyor.'}</p>
+            
+            <h4 class="text-lg font-semibold mt-4 mb-2">Öneriler</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h5 class="font-semibold text-green-700">D Vitamini</h5>
+                    <p class="text-sm text-gray-600 mt-2">Günde 1000-2000 IU D vitamini takviyesi bağışıklık sisteminizi güçlendirebilir.</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h5 class="font-semibold text-green-700">Omega-3</h5>
+                    <p class="text-sm text-gray-600 mt-2">Günlük 1000mg Omega-3 takviyesi kalp sağlığınızı destekleyebilir.</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h5 class="font-semibold text-green-700">Probiyotikler</h5>
+                    <p class="text-sm text-gray-600 mt-2">Bağırsak sağlığınız için günlük probiyotik takviyesi almayı düşünebilirsiniz.</p>
+                </div>
+            </div>
+            `;
+            
+            if (userData.lifestyle.stressLevel > 6) {
+                recommendations += `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h5 class="font-semibold text-green-700">Ashwagandha</h5>
+                        <p class="text-sm text-gray-600 mt-2">Stres seviyenizi dengelemek için adaptojen bir bitki olan ashwagandha kullanabilirsiniz.</p>
+                    </div>
+                </div>
+                `;
+            }
+            
+            if (userData.lifestyle.sleepHours < 7) {
+                recommendations += `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h5 class="font-semibold text-green-700">Melatonin</h5>
+                        <p class="text-sm text-gray-600 mt-2">Uyku kalitenizi artırmak için 1-3mg melatonin takviyesi almayı deneyebilirsiniz.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h5 class="font-semibold text-green-700">Magnezyum</h5>
+                        <p class="text-sm text-gray-600 mt-2">Yatmadan önce 200-400mg magnezyum takviyesi rahatlamanıza yardımcı olabilir.</p>
+                    </div>
+                </div>
+                `;
+            }
+            
+            return recommendations;
+        }
+    </script>
 </body>
 </html>
