@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Harcama Takip</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harcama Takip</title>
+    <!-- Font Awesome için CDN (CSS) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        @media (min-width: 992px) {
+            .app-container {
+                flex-direction: row;
+            }
+            
+            .input-section {
+                flex: 1;
+            }
+            
+            .expenses-section {
+                flex: 2;
+            }
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            font-size: 1.3rem;
+        }
+        
+        /* Form Stilleri */
+        .input-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--gray);
+            color: white;
+        }
+        
+        /* Harcamalar Listesi */
+        .expenses-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            height: 100%;
+        }
+        
+        .expenses-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .total-expenses {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--light-gray);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background-color: #d1d9e6;
+        }
+        
+        .expenses-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .expense-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: var(--transition);
+        }
+        
+        .expense-item:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .expense-item:last-child {
+            border-bottom: none;
+        }
+        
+        .expense-info {
+            flex: 1;
+        }
+        
+        .expense-date {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .expense-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .expense-note {
+            color: var(--gray);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .expense-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .edit-btn {
+            color: var(--primary);
+        }
+        
+        .edit-btn:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .delete-btn {
+            color: var(--danger);
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(247, 37, 133, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--light-gray);
+        }
+        
+        /* Responsive Tasarım */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .input-card, .expenses-card {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .expenses-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .expense-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .expense-actions {
+                align-self: flex-end;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .filter-options {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .filter-btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
+        
+        /* Toast Mesajları */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: var(--dark);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background-color: var(--success);
+        }
+        
+        .toast.error {
+            background-color: var(--danger);
+        }
+        
+        .toast.info {
+            background-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-wallet"></i> Harcama Takip</h1>
+            <p class="subtitle">Günlük harcamalarınızı kolayca takip edin</p>
+        </header>
+        
+        <div class="app-container">
+            <!-- Giriş Bölümü -->
+            <section class="input-section">
+                <h2 class="section-title"><i class="fas fa-plus-circle"></i> Yeni Harcama Ekle</h2>
+                
+                <div class="input-card">
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label for="date"><i class="far fa-calendar-alt"></i> Tarih</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount"><i class="fas fa-lira-sign"></i> Tutar (₺)</label>
+                            <input type="number" id="amount" min="0" step="0.01" placeholder="0.00" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="note"><i class="far fa-sticky-note"></i> Not</label>
+                            <textarea id="note" placeholder="Harcama detayını buraya yazın..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                            <button type="button" id="clearForm" class="btn btn-secondary">
+                                <i class="fas fa-eraser"></i> Temizle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="input-card">
+                    <h2 class="section-title"><i class="fas fa-chart-pie"></i> İstatistikler</h2>
+                    <div id="stats">
+                        <p>Bugünkü toplam: <strong><span id="todayTotal">0.00</span> ₺</strong></p>
+                        <p>Bu ayki toplam: <strong><span id="monthTotal">0.00</span> ₺</strong></p>
+                        <p>Toplam harcama: <strong><span id="allTotal">0.00</span> ₺</strong></p>
+                        <p>Kayıtlı harcama: <strong><span id="expenseCount">0</span> adet</strong></p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Harcamalar Listesi Bölümü -->
+            <section class="expenses-section">
+                <div class="expenses-card">
+                    <div class="expenses-header">
+                        <h2 class="section-title"><i class="fas fa-list"></i> Harcamalarım</h2>
+                        <div class="total-expenses" id="totalExpenses">0.00 ₺</div>
+                    </div>
+                    
+                    <div class="filter-options">
+                        <button class="filter-btn active" data-filter="all">Tümü</button>
+                        <button class="filter-btn" data-filter="today">Bugün</button>
+                        <button class="filter-btn" data-filter="week">Bu Hafta</button>
+                        <button class="filter-btn" data-filter="month">Bu Ay</button>
+                    </div>
+                    
+                    <div class="expenses-list" id="expensesList">
+                        <!-- Harcamalar buraya eklenecek -->
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <h3>Henüz harcama kaydı yok</h3>
+                            <p>İlk harcamanızı eklemek için yukarıdaki formu doldurun.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <!-- Toast mesajı için -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // DOM elementlerini seçme
+        const expenseForm = document.getElementById('expenseForm');
+        const dateInput = document.getElementById('date');
+        const amountInput = document.getElementById('amount');
+        const noteInput = document.getElementById('note');
+        const clearFormBtn = document.getElementById('clearForm');
+        const expensesList = document.getElementById('expensesList');
+        const totalExpensesEl = document.getElementById('totalExpenses');
+        const todayTotalEl = document.getElementById('todayTotal');
+        const monthTotalEl = document.getElementById('monthTotal');
+        const allTotalEl = document.getElementById('allTotal');
+        const expenseCountEl = document.getElementById('expenseCount');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const toast = document.getElementById('toast');
+        
+        // Varsayılan olarak bugünün tarihini ayarla
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+        
+        // Harcamaları localStorage'dan yükle
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        let editingId = null;
+        let currentFilter = 'all';
+        
+        // Uygulama başlangıcında harcamaları yükle
+        document.addEventListener('DOMContentLoaded', () => {
+            renderExpenses();
+            updateStats();
+        });
+        
+        // Yeni harcama ekleme veya düzenleme
+        expenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const date = dateInput.value;
+            const amount = parseFloat(amountInput.value);
+            const note = noteInput.value.trim();
+            
+            if (!date || isNaN(amount) || amount <= 0) {
+                showToast('Lütfen geçerli bir tarih ve tutar girin.', 'error');
+                return;
+            }
+            
+            if (editingId) {
+                // Harcamayı güncelle
+                expenses = expenses.map(expense => {
+                    if (expense.id === editingId) {
+                        return { ...expense, date, amount, note };
+                    }
+                    return expense;
+                });
+                
+                showToast('Harcama başarıyla güncellendi.', 'success');
+                editingId = null;
+            } else {
+                // Yeni harcama ekle
+                const newExpense = {
+                    id: Date.now().toString(),
+                    date,
+                    amount,
+                    note
+                };
+                
+                expenses.push(newExpense);
+                showToast('Harcama başarıyla eklendi.', 'success');
+            }
+            
+            // Formu temizle
+            clearForm();
+            
+            // Verileri güncelle
+            saveToLocalStorage();
+            renderExpenses();
+            updateStats();
+        });
+        
+        // Formu temizle
+        clearFormBtn.addEventListener('click', clearForm);
+        
+        // Filtre butonlarına tıklama
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Aktif butonu güncelle
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Filtreyi uygula
+                currentFilter = button.getAttribute('data-filter');
+                renderExpenses();
+            });
+        });
+        
+        // Harcamaları render etme
+        function renderExpenses() {
+            // Filtreleme uygula
+            let filteredExpenses = expenses;
+            
+            if (currentFilter !== 'all') {
+                const now = new Date();
+                const today = new Date().toISOString().split('T')[0];
+                
+                filteredExpenses = expenses.filter(expense => {
+                    const expenseDate = new Date(expense.date);
+                    
+                    if (currentFilter === 'today') {
+                        return expense.date === today;
+                    }
+                    
+                    if (currentFilter === 'week') {
+                        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        return expenseDate >= oneWeekAgo;
+                    }
+                    
+                    if (currentFilter === 'month') {
+                        return expenseDate.getMonth() === now.getMonth() && 
+                               expenseDate.getFullYear() === now.getFullYear();
+                    }
+                    
+                    return true;
+                });
+            }
+            
+            // Sıralama (yeni tarih önce)
+            filteredExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Toplam tutarı hesapla
+            const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+            totalExpensesEl.textContent = total.toFixed(2) + ' ₺';
+            
+            // Liste oluştur
+            if (filteredExpenses.length === 0) {
+                expensesList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <h3>${currentFilter === 'all' ? 'Henüz harcama kaydı yok' : 'Bu filtrede harcama bulunamadı'}</h3>
+                        <p>${currentFilter === 'all' ? 'İlk harcamanızı eklemek için yukarıdaki formu doldurun.' : 'Filtreyi değiştirmeyi deneyin.'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            expensesList.innerHTML = filteredExpenses.map(expense => {
+                const formattedDate = formatDate(expense.date);
+                return `
+                    <div class="expense-item">
+                        <div class="expense-info">
+                            <div class="expense-date">
+                                <i class="far fa-calendar"></i> ${formattedDate}
+                            </div>
+                            <div class="expense-amount">${expense.amount.toFixed(2)} ₺</div>
+                            <div class="expense-note">${expense.note || 'Not eklenmemiş'}</div>
+                        </div>
+                        <div class="expense-actions">
+                            <button class="action-btn edit-btn" onclick="editExpense('${expense.id}')" title="Düzenle">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteExpense('${expense.id}')" title="Sil">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Tarihi formatlama
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { day: '2-digit', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('tr-TR', options);
+        }
+        
+        // Harcama düzenleme
+        function editExpense(id) {
+            const expense = expenses.find(exp => exp.id === id);
+            if (expense) {
+                dateInput.value = expense.date;
+                amountInput.value = expense.amount;
+                noteInput.value = expense.note;
+                editingId = expense.id;
+                
+                // Form butonunu güncelle
+                const submitBtn = expenseForm.querySelector('.btn-primary');
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Güncelle';
+                
+                // Forma odaklan
+                dateInput.focus();
+                
+                showToast('Harcama düzenleme modunda.', 'info');
+            }
+        }
+        
+        // Harcama silme
+        function deleteExpense(id) {
+            if (confirm('Bu harcamayı silmek istediğinize emin misiniz?')) {
+                expenses = expenses.filter(expense => expense.id !== id);
+                saveToLocalStorage();
+                renderExpenses();
+                updateStats();
+                showToast('Harcama başarıyla silindi.', 'success');
+                
+                // Eğer düzenleme modundaysa formu temizle
+                if (editingId === id) {
+                    clearForm();
+                }
+            }
+        }
+        
+        // Formu temizleme
+        function clearForm() {
+            dateInput.value = today;
+            amountInput.value = '';
+            noteInput.value = '';
+            editingId = null;
+            
+            // Form butonunu eski haline getir
+            const submitBtn = expenseForm.querySelector('.btn-primary');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Kaydet';
+            
+            showToast('Form temizlendi.', 'info');
+        }
+        
+        // İstatistikleri güncelleme
+        function updateStats() {
+            if (expenses.length === 0) {
+                todayTotalEl.textContent = '0.00';
+                monthTotalEl.textContent = '0.00';
+                allTotalEl.textContent = '0.00';
+                expenseCountEl.textContent = '0';
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            
+            // Bugünkü toplam
+            const todayTotal = expenses
+                .filter(expense => expense.date === today)
+                .reduce((sum, expense) => sum + expense.amount, 0);
+            
+            // Bu ayki toplam
+            const monthTotal = expenses
+                .filter(expense => {
+                    const expenseDate = new Date(expense.date);
+                    return expenseDate.getMonth() === now.getMonth() && 
+                           expenseDate.getFullYear() === now.getFullYear();
+                })
+                .reduce((sum, expense) => sum + expense.amount, 0);
+            
+            // Tüm zamanlar toplamı
+            const allTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            
+            todayTotalEl.textContent = todayTotal.toFixed(2);
+            monthTotalEl.textContent = monthTotal.toFixed(2);
+            allTotalEl.textContent = allTotal.toFixed(2);
+            expenseCountEl.textContent = expenses.length;
+        }
+        
+        // LocalStorage'a kaydetme
+        function saveToLocalStorage() {
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+        
+        // Toast mesajı gösterme
+        function showToast(message, type = 'info') {
+            toast.textContent = message;
+            toast.className = 'toast';
+            
+            // Tipine göre class ekle
+            toast.classList.add(type);
+            
+            // Göster
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Gizle
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Örnek veriler (isteğe bağlı)
+        function addSampleData() {
+            if (expenses.length === 0) {
+                const sampleExpenses = [
+                    {
+                        id: '1',
+                        date: today,
+                        amount: 25.50,
+                        note: 'Öğle yemeği'
+                    },
+                    {
+                        id: '2',
+                        date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+                        amount: 42.75,
+                        note: 'Market alışverişi'
+                    },
+                    {
+                        id: '3',
+                        date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
+                        amount: 15.00,
+                        note: 'Toplu taşıma kartı yükleme'
+                    },
+                    {
+                        id: '4',
+                        date: new Date(Date.now() - 5 * 86400000).toISOString().split('T')[0],
+                        amount: 89.99,
+                        note: 'Kitap alışverişi'
+                    }
+                ];
+                
+                expenses = sampleExpenses;
+                saveToLocalStorage();
+                renderExpenses();
+                updateStats();
+                showToast('Örnek veriler eklendi.', 'success');
+            }
+        }
+        
+        // Sayfa yüklendiğinde örnek veri eklemek için buton (gizli)
+        setTimeout(() => {
+            if (expenses.length === 0) {
+                const addSampleBtn = document.createElement('button');
+                addSampleBtn.innerHTML = '<i class="fas fa-magic"></i> Örnek Verileri Yükle';
+                addSampleBtn.className = 'btn btn-secondary';
+                addSampleBtn.style.marginTop = '10px';
+                addSampleBtn.style.width = '100%';
+                addSampleBtn.onclick = addSampleData;
+                
+                document.querySelector('.input-card').appendChild(addSampleBtn);
+            }
+        }, 500);
+    </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
