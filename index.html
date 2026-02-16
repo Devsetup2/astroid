@@ -1,40 +1,39 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>Astroid</title>
+    <title>Astroid - Koleksiyon Yönetimi</title>
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preload" href="style.css" as="style" onload="this.rel='stylesheet'">
-    <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"  crossorigin>
-    <!--Meta-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <meta name="description" content="Astroid evreni ile keşfe çık. Binlerce web uygulaması, oyun ve araç tek bir yerde. Ücretsiz, hızlı ve hafif.">
-    <meta name="keywords" content="Astroid app store , free app, App Library ">
+    <meta name="keywords" content="Astroid app store, free app, App Library">
     <meta name="author" content="Muammer Altunkan">
 </head>
 <body>
     <div class="container">
-        <!-- HEADER - SOL HAMBURGER MENÜ -->
+        <!-- HEADER -->
         <div class="super-header">
             <nav class="navbar glass">
                 <div class="menu-left">
-                    <!-- Hamburger buton sol tarafta -->
                     <button class="hamburger-btn" id="hamburgerBtn">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div class="logo">
-                    <img src="icon.png" width="32" height="32" alt="astroid">
+                    <div class="logo" id="logoBtn">
+                        <img src="icon.png" width="32" height="32" alt="astroid" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ff4d6d%22 /></svg>'">
                         <span class="logo-text">Astroid</span>
                     </div>
                 </div>
                 
                 <div class="nav-links">
-                    <a href="#" class="nav-item active">Keşfet</a>
-                    <a href="#" class="nav-item">Koleksiyonlar</a>
-                    <a href="#" class="nav-item">Blog</a>
-                    <a href="#" class="nav-item">Github</a>
+                    <a class="nav-item active" id="kesfetBtn">Keşfet</a>
+                    <a class="nav-item" id="koleksiyonlarBtn">Koleksiyonlar</a>
+                    <a class="nav-item" id="blogBtn">Blog</a>
+                    <a class="nav-item" id="githubBtn">Github</a>
                 </div>
 
                 <div class="search-box">
@@ -44,11 +43,11 @@
             </nav>
         </div>
 
-        <!-- SOL ÇEKİLECEK MENÜ (DRAWER) - KATEGORİLER VE FİLTRELER -->
+        <!-- SOL MENÜ (DRAWER) -->
         <div class="drawer" id="categoryDrawer">
             <div class="drawer-header">
                 <div class="drawer-logo">
-                    <i class="fas fa-cube" style="color: var(--primary);"></i>
+                   <img src="icon.png" alt="astroid" width="32" height="32">
                     <span>Kategoriler</span>
                 </div>
                 <div class="drawer-close" id="closeDrawer">
@@ -61,10 +60,8 @@
                     <i class="fas fa-th-large"></i>
                     <span>Uygulama Kategorileri</span>
                 </div>
-                <div class="category-list" id="categoryList">
-                    <!-- Kategoriler JS ile doldurulacak -->
-                </div>
-                
+                <div class="category-list" id="categoryList"></div>
+            
                 <div class="drawer-filters">
                     <div class="drawer-title">
                         <i class="fas fa-filter"></i>
@@ -86,10 +83,10 @@
             </div>
         </div>
 
-        <!-- OVERLAY (arka plan karartma) -->
+        <!-- OVERLAY -->
         <div class="overlay" id="overlay"></div>
 
-        <!-- ANA İÇERİK - TAM GENİŞLİK -->
+        <!-- ANA İÇERİK -->
         <div class="main-content">
             <section class="apps-section">
                 <div class="section-header">
@@ -97,9 +94,7 @@
                     <span class="active-category-badge" id="appCount">19 uygulama</span>
                 </div>
                 
-                <div class="apps-grid" id="appsGrid">
-                    <!-- Uygulamalar JS ile dinamik yüklenecek -->
-                </div>
+                <div class="apps-grid" id="appsGrid"></div>
             </section>
         </div>
 
@@ -108,24 +103,21 @@
             <div class="footer-grid">
                 <div>
                     <div class="logo" style="margin-bottom: 20px;">
-                        <img src="icon.png" width="32" height="32" alt="astroid">
+                        <img src="icon.png" width="32" height="32" alt="astroid" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ff4d6d%22 /></svg>'">
                         <span class="logo-text" style="font-size: 22px;">Astroid</span>
                     </div>
                     <p style="color: rgba(220,220,255,0.6); margin-bottom: 20px; line-height: 1.6;">
-                        En iyi web uygulamalarını koyu cam tasarımla keşfedin.
-                        
-                        2026'nın en kapsamlı web uygulama mağazası Astroid ile tanışın! Telefonunuzun hafızasını dolduran ağır uygulamalara veda edin. Astroid, ihtiyacınız olan yüzlerce farklı web uygulamasını, aracı ve oyunu tek bir hafif platformda, özenle kategorize edilmiş halde sunar. 
+                        En iyi web uygulamalarını koyu cam tasarımla keşfedin. 2026'nın en kapsamlı web uygulama mağazası Astroid ile tanışın!
                     </p>
-                  
                 </div>
-                <div>
+            </div>
             <div class="footer-bottom">
                 <p>© 2026 Astroid - Muammer Altunkan</p>
             </div>
         </footer>
     </div>
 
-    <!-- WEB UYGULAMA MODAL -->
+    <!-- MODAL -->
     <div id="appModal" class="modal">
         <div class="modal-content">
             <div class="modal-close" id="closeModal">
@@ -137,14 +129,13 @@
                 <a href="#" id="directLink" target="_blank" class="btn btn-outline">
                     <i class="fas fa-external-link-alt"></i> Yeni Sekmede Aç
                 </a>
-                <button class="btn btn-primary" id="addToCollection">
+                <button class="btn btn-success" id="addToCategoryBtn">
                     <i class="fas fa-plus"></i> Koleksiyona Ekle
                 </button>
             </div>
         </div>
     </div>
-
-    <script src="main.js" defer></script>
+    <script src="main.js"defer></script>
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="setupdev" data-description="Support me on Buy me a coffee!" data-message="Thank You" data-color="#FF5F5F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
 </body>
 </html>
