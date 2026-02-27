@@ -1067,6 +1067,7 @@ canvas { max-width: 100%; }
         </div>
       </div>
 
+<br>
       <!-- Macro Bar -->
       <div class="macro-card">
         <div class="macro-title"><i class="fa-solid fa-chart-pie"></i> Macros Today</div>
@@ -1132,7 +1133,6 @@ canvas { max-width: 100%; }
     </section>
 
   </main>
-
   <!-- ═══════════════════════════════════════════
        FLOATING SCAN BUTTON
   ═══════════════════════════════════════════ -->
@@ -1149,16 +1149,13 @@ canvas { max-width: 100%; }
 
 <script>
 /* ═══════════════════════════════════════════════════
-   AI CALORIES — script.js -Muammer Altunkan
-   Fully automatic calorie tracking with camera + AI
+   AI CALORIES — script.js
    ─────────────────────────────────────────────────
-   Architecture:
-     - FoodDB        : Local nutritional database
-     - PortionEngine : Automated portion estimation
-     - StepTracker   : Mobile sensor step counting
-     - AIEngine      : Camera + AI food recognition
-     - DataStore     : localStorage persistence
-     - UIController  : DOM updates & charts
+   DEMO MODE: API_KEY boş bırakılırsa otomatik çalışır.
+   Kamera çekimi yapar, 1.5sn sonra rastgele yiyecek
+   seçer → kalori hesaplar. Test için idealdir.
+
+   GERÇEK MOD: API_KEY alanına OpenAI key gir.
 ═══════════════════════════════════════════════════ */
 
 'use strict';
@@ -1167,33 +1164,24 @@ canvas { max-width: 100%; }
    1. FOOD DATABASE (per 100g)
 ═══════════════════════════════════════════════════ */
 const FoodDB = {
-  /**
-   * Each entry: { calories (kcal), carbs (g), protein (g), fat (g) }
-   * Source: standard nutritional references (USDA, generic values)
-   */
-  apple:    { calories: 52,  carbs: 13.8, protein: 0.3, fat: 0.2,  emoji: '🍎' },
-  banana:   { calories: 89,  carbs: 22.8, protein: 1.1, fat: 0.3,  emoji: '🍌' },
-  tomato:   { calories: 18,  carbs: 3.9,  protein: 0.9, fat: 0.2,  emoji: '🍅' },
-  cucumber: { calories: 15,  carbs: 3.6,  protein: 0.7, fat: 0.1,  emoji: '🥒' },
-  sausage:  { calories: 301, carbs: 2.7,  protein: 12.3,fat: 26.8, emoji: '🌭' },
-  cheese:   { calories: 402, carbs: 1.3,  protein: 25.0,fat: 33.1, emoji: '🧀' },
-  salami:   { calories: 378, carbs: 2.1,  protein: 20.7,fat: 31.9, emoji: '🍖' },
-  pasta:    { calories: 131, carbs: 25.0, protein: 5.0, fat: 1.1,  emoji: '🍝' },
-  bread:    { calories: 265, carbs: 49.0, protein: 8.8, fat: 3.2,  emoji: '🍞' },
-  steak:    { calories: 271, carbs: 0.0,  protein: 26.1,fat: 18.0, emoji: '🥩' },
-  milk:     { calories: 61,  carbs: 4.8,  protein: 3.2, fat: 3.3,  emoji: '🥛' },
+  apple:    { calories: 52,  carbs: 13.8, protein: 0.3,  fat: 0.2,  emoji: '🍎' },
+  banana:   { calories: 89,  carbs: 22.8, protein: 1.1,  fat: 0.3,  emoji: '🍌' },
+  tomato:   { calories: 18,  carbs: 3.9,  protein: 0.9,  fat: 0.2,  emoji: '🍅' },
+  cucumber: { calories: 15,  carbs: 3.6,  protein: 0.7,  fat: 0.1,  emoji: '🥒' },
+  sausage:  { calories: 301, carbs: 2.7,  protein: 12.3, fat: 26.8, emoji: '🌭' },
+  cheese:   { calories: 402, carbs: 1.3,  protein: 25.0, fat: 33.1, emoji: '🧀' },
+  salami:   { calories: 378, carbs: 2.1,  protein: 20.7, fat: 31.9, emoji: '🍖' },
+  pasta:    { calories: 131, carbs: 25.0, protein: 5.0,  fat: 1.1,  emoji: '🍝' },
+  bread:    { calories: 265, carbs: 49.0, protein: 8.8,  fat: 3.2,  emoji: '🍞' },
+  steak:    { calories: 271, carbs: 0.0,  protein: 26.1, fat: 18.0, emoji: '🥩' },
+  milk:     { calories: 61,  carbs: 4.8,  protein: 3.2,  fat: 3.3,  emoji: '🥛' },
 };
 
-/**
- * Look up a food by name (case-insensitive, partial match).
- * Returns { name, ...nutritionPer100g } or null if not found.
- */
+/* Yiyecek ara — büyük/küçük harf ve kısmi eşleşme */
 FoodDB.lookup = function(rawName) {
   if (!rawName) return null;
-  const key = rawName.toLowerCase().trim();
-  // Exact match first
+  const key = rawName.toLowerCase().trim().replace(/[^a-z]/g, '');
   if (this[key]) return { name: key, ...this[key] };
-  // Partial match
   const found = Object.keys(this).find(k =>
     typeof this[k] === 'object' && (k.includes(key) || key.includes(k))
   );
@@ -1204,45 +1192,33 @@ FoodDB.lookup = function(rawName) {
    2. PORTION ESTIMATION ENGINE
 ═══════════════════════════════════════════════════ */
 const PortionEngine = {
-  /**
-   * Predefined portion sizes (grams) per food category.
-   * Rules are based on common serving conventions.
-   */
   rules: {
-    apple:    { type: 'piece',   grams: 182 },   // 1 medium apple
-    banana:   { type: 'piece',   grams: 118 },   // 1 medium banana (peeled)
-    tomato:   { type: 'piece',   grams: 123 },   // 1 medium tomato
-    cucumber: { type: 'piece',   grams: 150 },   // 1/2 cucumber
-    sausage:  { type: 'piece',   grams: 85  },   // 1 sausage link
-    cheese:   { type: 'slice',   grams: 28  },   // 1 cheese slice
-    salami:   { type: 'slice',   grams: 30  },   // 2–3 salami slices
-    pasta:    { type: 'serving', grams: 220 },   // 1 standard pasta serving (cooked)
-    bread:    { type: 'slice',   grams: 32  },   // 1 bread slice
-    steak:    { type: 'serving', grams: 200 },   // 1 steak portion
-    milk:     { type: 'serving', grams: 240 },   // 1 glass (~240ml ≈ 240g)
+    apple:    { type: 'piece',   grams: 182 },
+    banana:   { type: 'piece',   grams: 118 },
+    tomato:   { type: 'piece',   grams: 123 },
+    cucumber: { type: 'piece',   grams: 150 },
+    sausage:  { type: 'piece',   grams: 85  },
+    cheese:   { type: 'slice',   grams: 28  },
+    salami:   { type: 'slice',   grams: 30  },
+    pasta:    { type: 'serving', grams: 220 },
+    bread:    { type: 'slice',   grams: 32  },
+    steak:    { type: 'serving', grams: 200 },
+    milk:     { type: 'serving', grams: 240 },
   },
 
-  /**
-   * Estimate grams for a recognized food.
-   * @param {string} foodName - Key from FoodDB
-   * @returns {{ grams: number, portionType: string }}
-   */
   estimate(foodName) {
     const rule = this.rules[foodName] || { type: 'serving', grams: 100 };
     return { grams: rule.grams, portionType: rule.type };
   },
 
-  /**
-   * Calculate nutritional values for a portion.
-   * Formula: value = (valuePer100g / 100) * estimatedGrams
-   */
+  /* Formula: (valuePer100g / 100) * estimatedGrams */
   calculate(foodData, grams) {
-    const factor = grams / 100;
+    const f = grams / 100;
     return {
-      calories: Math.round(foodData.calories * factor),
-      protein:  Math.round(foodData.protein  * factor * 10) / 10,
-      carbs:    Math.round(foodData.carbs     * factor * 10) / 10,
-      fat:      Math.round(foodData.fat       * factor * 10) / 10,
+      calories: Math.round(foodData.calories * f),
+      protein:  Math.round(foodData.protein  * f * 10) / 10,
+      carbs:    Math.round(foodData.carbs     * f * 10) / 10,
+      fat:      Math.round(foodData.fat       * f * 10) / 10,
     };
   },
 };
@@ -1251,45 +1227,34 @@ const PortionEngine = {
    3. DATA STORE (localStorage)
 ═══════════════════════════════════════════════════ */
 const DataStore = {
-  KEYS: {
-    meals:    'aical_meals',
-    settings: 'aical_settings',
-    weekly:   'aical_weekly',
-  },
-
-  // User settings with defaults
-  settings: {
-    weight: 70,      // kg
-    goal:   2000,    // kcal/day
-  },
+  KEYS: { meals: 'aical_meals', settings: 'aical_settings' },
+  settings: { weight: 70, goal: 2000 },
 
   loadSettings() {
-    const raw = localStorage.getItem(this.KEYS.settings);
-    if (raw) Object.assign(this.settings, JSON.parse(raw));
+    try {
+      const raw = localStorage.getItem(this.KEYS.settings);
+      if (raw) Object.assign(this.settings, JSON.parse(raw));
+    } catch(e) { console.warn('Settings load error', e); }
   },
 
   saveSettings() {
     localStorage.setItem(this.KEYS.settings, JSON.stringify(this.settings));
   },
 
-  /** Return today's date string YYYY-MM-DD */
-  today() {
-    return new Date().toISOString().split('T')[0];
-  },
+  today() { return new Date().toISOString().split('T')[0]; },
 
-  /** Get all meals (array) */
   getMeals() {
-    const raw = localStorage.getItem(this.KEYS.meals);
-    return raw ? JSON.parse(raw) : [];
+    try {
+      const raw = localStorage.getItem(this.KEYS.meals);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
   },
 
-  /** Get only today's meals */
   getTodayMeals() {
     const today = this.today();
     return this.getMeals().filter(m => m.date === today);
   },
 
-  /** Add a meal entry */
   addMeal(meal) {
     const meals = this.getMeals();
     meal.id   = Date.now();
@@ -1300,22 +1265,20 @@ const DataStore = {
     return meal;
   },
 
-  /** Clear all meals for today */
   clearTodayMeals() {
     const today = this.today();
     const meals = this.getMeals().filter(m => m.date !== today);
     localStorage.setItem(this.KEYS.meals, JSON.stringify(meals));
   },
 
-  /** Get weekly summary (last 7 days) */
   getWeeklySummary() {
     const meals = this.getMeals();
     const result = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      const label   = d.toLocaleDateString([], { weekday: 'short' });
+      const dateStr  = d.toISOString().split('T')[0];
+      const label    = d.toLocaleDateString([], { weekday: 'short' });
       const dayMeals = meals.filter(m => m.date === dateStr);
       const intake   = dayMeals.reduce((s, m) => s + m.calories, 0);
       result.push({ dateStr, label, intake });
@@ -1323,42 +1286,31 @@ const DataStore = {
     return result;
   },
 
-  /** Summarise today's macros */
   getTodayMacros() {
-    const meals = this.getTodayMeals();
-    return meals.reduce((acc, m) => ({
+    return this.getTodayMeals().reduce((acc, m) => ({
       calories: acc.calories + m.calories,
-      protein:  acc.protein  + (m.protein  || 0),
-      carbs:    acc.carbs    + (m.carbs     || 0),
-      fat:      acc.fat      + (m.fat       || 0),
+      protein:  acc.protein  + (m.protein || 0),
+      carbs:    acc.carbs    + (m.carbs   || 0),
+      fat:      acc.fat      + (m.fat     || 0),
     }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
   },
 };
 
 /* ═══════════════════════════════════════════════════
-   4. STEP TRACKER
+   4. STEP TRACKER (Mobil Sensör)
 ═══════════════════════════════════════════════════ */
 const StepTracker = {
   steps: 0,
   isActive: false,
   lastAcc: null,
-  threshold: 10,    // m/s² delta to detect a step
+  threshold: 10,
 
-  /**
-   * Initialise device motion / step detection.
-   * Falls back to DeviceMotionEvent (accelerometer).
-   */
   init() {
-    // Try Pedometer API (Chrome Android, some PWA contexts)
-    if ('ActivitySensor' in window) {
-      this._initActivitySensor();
-      return;
-    }
-    // Fallback: accelerometer-based step detection
+    if ('ActivitySensor' in window) { this._initActivitySensor(); return; }
     if (window.DeviceMotionEvent) {
       this._requestMotionPermission();
     } else {
-      UIController.updateSensorStatus('Step sensor not supported on this device.', false);
+      UIController.updateSensorStatus('Bu cihazda adım sensörü yok.', false);
     }
   },
 
@@ -1368,25 +1320,22 @@ const StepTracker = {
       sensor.addEventListener('reading', () => {
         this.steps = sensor.steps;
         UIController.updateSteps(this.steps);
-        UIController.updateBurnedCalories(this._burned());
+        UIController.refreshDashboard();
       });
       sensor.start();
       this.isActive = true;
-      UIController.updateSensorStatus('Step sensor active ✓', true);
-    } catch (e) {
-      this._requestMotionPermission();
-    }
+      UIController.updateSensorStatus('Adım sensörü aktif ✓', true);
+    } catch (e) { this._requestMotionPermission(); }
   },
 
   _requestMotionPermission() {
-    // iOS 13+ requires permission
     if (typeof DeviceMotionEvent.requestPermission === 'function') {
       DeviceMotionEvent.requestPermission()
         .then(state => {
           if (state === 'granted') this._startMotionTracking();
-          else UIController.updateSensorStatus('Motion permission denied.', false);
+          else UIController.updateSensorStatus('Hareket izni reddedildi.', false);
         })
-        .catch(() => UIController.updateSensorStatus('Motion permission failed.', false));
+        .catch(() => UIController.updateSensorStatus('İzin alınamadı.', false));
     } else {
       this._startMotionTracking();
     }
@@ -1396,104 +1345,137 @@ const StepTracker = {
     window.addEventListener('devicemotion', (e) => {
       const acc = e.accelerationIncludingGravity;
       if (!acc) return;
-      const magnitude = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2);
-      if (this.lastAcc !== null) {
-        const delta = Math.abs(magnitude - this.lastAcc);
-        if (delta > this.threshold) {
-          this.steps++;
-          UIController.updateSteps(this.steps);
-          UIController.updateBurnedCalories(this._burned());
-        }
+      const mag = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2);
+      if (this.lastAcc !== null && Math.abs(mag - this.lastAcc) > this.threshold) {
+        this.steps++;
+        UIController.updateSteps(this.steps);
+        UIController.refreshDashboard();
       }
-      this.lastAcc = magnitude;
+      this.lastAcc = mag;
     });
     this.isActive = true;
-    UIController.updateSensorStatus('Accelerometer tracking active ✓', true);
+    UIController.updateSensorStatus('İvmeölçer ile adım takibi ✓', true);
   },
 
-  /** Calorie burn formula: steps × weight × 0.0005 */
-  _burned() {
-    return Math.round(this.steps * DataStore.settings.weight * 0.0005);
-  },
-
+  /* Yakılan kalori: adım × ağırlık × 0.0005 */
   getBurnedCalories() {
-    return this._burned();
+    return Math.round(this.steps * DataStore.settings.weight * 0.0005);
   },
 };
 
 /* ═══════════════════════════════════════════════════
    5. AI ENGINE
+   ─────────────────────────────────────────────────
+   ✅ DEMO MODE  → API_KEY boş = rastgele yiyecek simüle eder
+   ✅ GERÇEK MOD → API_KEY dolu = OpenAI Vision API kullanır
 ═══════════════════════════════════════════════════ */
 const AIEngine = {
-  /**
-   * API configuration.
-   * Replace API_KEY with your actual key.
-   * Model: openai/gpt-oss-120b via OpenAI-compatible endpoint.
-   *
-   * NOTE: In production, calls should be proxied through your backend
-   * to keep the API key secure.
-   */
-  API_KEY: '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',
-  MODEL:   'gpt-4o',  // Update to openai/gpt-oss-120b when available on your endpoint
-  API_URL: 'https://openrouter.ai/api/v1',
+
+  /* ────────────────────────────────────────────────
+     🔑 API KEY BURAYA GİR
+     Boş bırak  → DEMO MODE (API key olmadan test)
+     Key gir    → GERÇEK YAPAY ZEKA MODU
+     Örnek: 'sk-proj-xxxxxxxxxxxxxxxxxxxx'
+  ──────────────────────────────────────────────── */
+  API_KEY: '',
+  MODEL:   'gpt-4o',
+  API_URL: 'https://api.openai.com/v1/chat/completions',
+
+  _demoFoods: ['apple','banana','tomato','cucumber','sausage',' pizza','hamburger','chicken',
+'cheese','salami',' egg','pasta','bread','steak','milk'],
+
+  /* Demo mod mu kontrol et */
+  _isDemoMode() {
+    return !this.API_KEY ||
+           this.API_KEY.trim() === '' ||
+           this.API_KEY === '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';
+  },
 
   /**
-   * Recognize food from a base64-encoded image.
-   * The AI is prompted to return ONLY the food name (one word),
-   * so no nutritional values are hallucinated.
-   *
-   * @param {string} base64Image - JPEG/PNG as base64 data URL
-   * @returns {Promise<string>} - Detected food name (lowercase)
+   * Ana metod.
+   * Demo modda: 1.5sn sonra rastgele yiyecek döndürür.
+   * Gerçek modda: OpenAI Vision API ile fotoğrafı analiz eder.
    */
   async recognizeFood(base64Image) {
-    const systemPrompt = `You are a food identification assistant.
-Your ONLY job is to look at the image and return the name of the single most prominent food item visible.
-Rules:
-- Return ONLY one word (the food name in English, lowercase)
-- Do NOT include any nutritional information, calories, or health data
-- Do NOT explain or add any text
-- If you cannot identify any food, return exactly: unknown
-- Valid food names from our database: apple, banana, tomato, cucumber, sausage, cheese, salami, pasta, bread, steak, milk
-- If the food is not in that list, still return the best matching common name`;
+    if (this._isDemoMode()) return this._demoRecognize();
+    return this._apiRecognize(base64Image);
+  },
 
+  /* Demo: 1.5sn gecikme + rastgele yiyecek */
+  _demoRecognize() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const food = this._demoFoods[Math.floor(Math.random() * this._demoFoods.length)];
+        console.log('%c[DEMO] Tespit:', 'color:#c8f230', food);
+        resolve(food);
+      }, 1500);
+    });
+  },
+
+  /* Gerçek OpenAI Vision API çağrısı */
+  async _apiRecognize(base64Image) {
     const payload = {
       model: this.MODEL,
       max_tokens: 20,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image_url',
-              image_url: { url: base64Image, detail: 'low' },
-            },
-            {
-              type: 'text',
-              text: 'What single food item is in this image? Reply with one word only.',
-            },
-          ],
-        },
-      ],
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: base64Image, detail: 'low' } },
+          {
+            type: 'text',
+            text: `Look at this image. Return ONLY one lowercase English word: the food name.
+Preferred words: apple banana tomato cucumber sausage cheese salami pasta bread steak milk
+If none match exactly, return the closest common food name (one word).
+If no food visible, return: unknown`,
+          },
+        ],
+      }],
     };
 
-    const response = await fetch(this.API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${this.API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `API Error ${response.status}`);
+    /* ── Ağ isteği ── */
+    let response;
+    try {
+      response = await fetch(this.API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${this.API_KEY}`,
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (netErr) {
+      throw new Error('İnternet bağlantısı hatası. Bağlantını kontrol et.');
     }
 
-    const data = await response.json();
-    const raw  = data.choices?.[0]?.message?.content?.trim().toLowerCase() || 'unknown';
-    // Sanitize — keep only alpha characters
-    return raw.replace(/[^a-z]/g, '');
+    /* ── HTTP hata kontrolü ──
+       Önemli: sunucu HTML hata sayfası döndürebilir (401, 429, vb.)
+       JSON.parse hatası vermemesi için content-type kontrol ediyoruz */
+    if (!response.ok) {
+      let errMsg;
+      const ct = response.headers.get('content-type') || '';
+
+      if (ct.includes('application/json')) {
+        const body = await response.json().catch(() => ({}));
+        errMsg = body.error?.message || `API Hatası (${response.status})`;
+      } else {
+        /* Gelen HTML/text body'yi tüket (bellek sızıntısı önlemi) */
+        await response.text().catch(() => null);
+        if      (response.status === 401) errMsg = 'Geçersiz API key (401). Lütfen kontrol et.';
+        else if (response.status === 429) errMsg = 'API limit aşıldı (429). Biraz bekle.';
+        else if (response.status === 403) errMsg = 'API erişimi reddedildi (403).';
+        else if (response.status >= 500)  errMsg = `Sunucu hatası (${response.status}). Tekrar dene.`;
+        else                              errMsg = `API Hatası: ${response.status}`;
+      }
+      throw new Error(errMsg);
+    }
+
+    /* ── Başarılı JSON yanıt ── */
+    const data = await response.json().catch(() => {
+      throw new Error('API yanıtı okunamadı.');
+    });
+
+    const raw = data.choices?.[0]?.message?.content?.trim().toLowerCase() || 'unknown';
+    return raw.replace(/[^a-z]/g, '') || 'unknown';
   },
 };
 
@@ -1503,13 +1485,11 @@ Rules:
 const ChartManager = {
   instances: {},
 
-  chartDefaults: {
+  defaults: {
     responsive: true,
     maintainAspectRatio: true,
     plugins: {
-      legend: {
-        labels: { color: '#666680', font: { family: 'JetBrains Mono', size: 11 } }
-      },
+      legend: { labels: { color: '#666680', font: { family: 'JetBrains Mono', size: 11 } } },
     },
     scales: {
       x: { ticks: { color: '#666680', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
@@ -1518,12 +1498,6 @@ const ChartManager = {
     animation: { duration: 800, easing: 'easeOutQuart' },
   },
 
-  destroyAll() {
-    Object.values(this.instances).forEach(c => c?.destroy());
-    this.instances = {};
-  },
-
-  /** Daily bar chart: Intake vs Burned */
   renderDailyChart(intake, burned) {
     this.instances.daily?.destroy();
     const ctx = document.getElementById('dailyChart');
@@ -1531,23 +1505,19 @@ const ChartManager = {
     this.instances.daily = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['Intake', 'Burned', 'Net'],
+        labels: ['Alınan', 'Yakılan', 'Net'],
         datasets: [{
           data: [intake, burned, Math.max(0, intake - burned)],
-          backgroundColor: ['rgba(200,242,48,0.7)', 'rgba(255,107,53,0.7)', 'rgba(61,240,192,0.7)'],
-          borderColor:     ['#c8f230', '#ff6b35', '#3df0c0'],
+          backgroundColor: ['rgba(200,242,48,0.7)','rgba(255,107,53,0.7)','rgba(61,240,192,0.7)'],
+          borderColor:     ['#c8f230','#ff6b35','#3df0c0'],
           borderWidth: 2,
           borderRadius: 8,
         }],
       },
-      options: {
-        ...this.chartDefaults,
-        plugins: { ...this.chartDefaults.plugins, legend: { display: false } },
-      },
+      options: { ...this.defaults, plugins: { ...this.defaults.plugins, legend: { display: false } } },
     });
   },
 
-  /** Weekly line chart */
   renderWeeklyChart(weekData) {
     this.instances.weekly?.destroy();
     const ctx = document.getElementById('weeklyChart');
@@ -1557,8 +1527,8 @@ const ChartManager = {
       data: {
         labels: weekData.map(d => d.label),
         datasets: [{
-          label: 'Intake (kcal)',
-          data: weekData.map(d => d.intake),
+          label: 'Alınan (kcal)',
+          data:  weekData.map(d => d.intake),
           borderColor: '#c8f230',
           backgroundColor: 'rgba(200,242,48,0.1)',
           fill: true,
@@ -1567,11 +1537,10 @@ const ChartManager = {
           pointRadius: 5,
         }],
       },
-      options: { ...this.chartDefaults },
+      options: { ...this.defaults },
     });
   },
 
-  /** Macro doughnut chart */
   renderMacroChart(macros) {
     this.instances.macro?.destroy();
     const ctx = document.getElementById('macroChart');
@@ -1579,10 +1548,10 @@ const ChartManager = {
     this.instances.macro = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Protein', 'Carbs', 'Fat'],
+        labels: ['Protein', 'Karbonhidrat', 'Yağ'],
         datasets: [{
           data: [macros.protein, macros.carbs, macros.fat],
-          backgroundColor: ['rgba(61,240,192,0.8)', 'rgba(200,242,48,0.8)', 'rgba(255,107,53,0.8)'],
+          backgroundColor: ['rgba(61,240,192,0.8)','rgba(200,242,48,0.8)','rgba(255,107,53,0.8)'],
           borderColor: ['#0a0a0f'],
           borderWidth: 3,
           hoverOffset: 6,
@@ -1598,7 +1567,7 @@ const ChartManager = {
             labels: { color: '#666680', font: { family: 'JetBrains Mono', size: 11 }, padding: 16 },
           },
         },
-        animation: { duration: 800, easing: 'easeOutQuart' },
+        animation: { duration: 800 },
       },
     });
   },
@@ -1608,12 +1577,16 @@ const ChartManager = {
    7. UI CONTROLLER
 ═══════════════════════════════════════════════════ */
 const UIController = {
-  // ─── TOAST ────────────────────────────────────────
-  toast(message, type = 'success', duration = 3000) {
+
+  /* ── Toast bildirimi ── */
+  toast(message, type = 'success', duration = 3500) {
     const container = document.getElementById('toastContainer');
+    const icon = type === 'error' ? 'fa-circle-exclamation'
+               : type === 'info'  ? 'fa-circle-info'
+               : 'fa-circle-check';
     const el = document.createElement('div');
     el.className = `toast ${type}`;
-    el.textContent = message;
+    el.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
     container.appendChild(el);
     setTimeout(() => {
       el.style.animation = 'toastOut 0.3s ease forwards';
@@ -1621,7 +1594,7 @@ const UIController = {
     }, duration);
   },
 
-  // ─── TABS ──────────────────────────────────────────
+  /* ── Tab geçişi ── */
   switchTab(tabId) {
     document.querySelectorAll('.tab-section').forEach(s => {
       s.classList.add('hidden');
@@ -1629,38 +1602,27 @@ const UIController = {
     });
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     const section = document.getElementById(`tab-${tabId}`);
-    if (section) {
-      section.classList.remove('hidden');
-      section.classList.add('active');
-    }
+    if (section) { section.classList.remove('hidden'); section.classList.add('active'); }
     const btn = document.querySelector(`[data-tab="${tabId}"]`);
     if (btn) btn.classList.add('active');
-    // Render charts when switching to charts tab
     if (tabId === 'charts') this.renderAllCharts();
   },
 
-  // ─── DATE ──────────────────────────────────────────
+  /* ── Tarih güncelle ── */
   updateDate() {
     const el = document.getElementById('todayDate');
-    if (el) el.textContent = new Date().toLocaleDateString([], {
+    if (el) el.textContent = new Date().toLocaleDateString('tr-TR', {
       weekday: 'long', month: 'long', day: 'numeric'
     });
   },
 
-  // ─── STEP COUNT ────────────────────────────────────
   updateSteps(steps) {
-    document.getElementById('stepCount').textContent = steps.toLocaleString();
+    const el = document.getElementById('stepCount');
+    if (el) el.textContent = steps.toLocaleString();
   },
 
-  // ─── BURNED CALS ──────────────────────────────────
-  updateBurnedCalories(burned) {
-    document.getElementById('burnedCalDisplay').textContent = burned;
-    this.refreshDashboard();
-  },
-
-  // ─── SENSOR STATUS ─────────────────────────────────
   updateSensorStatus(text, active) {
-    const el = document.getElementById('sensorText');
+    const el   = document.getElementById('sensorText');
     const card = document.getElementById('sensorStatus');
     if (el) el.textContent = text;
     if (card) {
@@ -1669,47 +1631,47 @@ const UIController = {
     }
   },
 
-  // ─── FULL DASHBOARD REFRESH ────────────────────────
+  /* ── Dashboard tamamen yenile ── */
   refreshDashboard() {
-    const macros  = DataStore.getTodayMacros();
-    const burned  = StepTracker.getBurnedCalories();
-    const goal    = DataStore.settings.goal;
-    const net     = macros.calories - burned;
-    const meals   = DataStore.getTodayMeals();
+    const macros = DataStore.getTodayMacros();
+    const burned = StepTracker.getBurnedCalories();
+    const goal   = DataStore.settings.goal;
+    const net    = Math.max(0, macros.calories - burned);
+    const meals  = DataStore.getTodayMeals();
 
-    // Ring net
-    document.getElementById('ringNetCal').textContent = net;
+    /* Demo banner güncelle */
+    const demoEl = document.getElementById('demoBanner');
+    if (demoEl) demoEl.style.display = AIEngine._isDemoMode() ? 'flex' : 'none';
+
+    /* Ring & legend */
+    document.getElementById('ringNetCal').textContent   = net;
     document.getElementById('legendIntake').textContent = macros.calories;
     document.getElementById('legendBurned').textContent = burned;
     document.getElementById('legendGoal').textContent   = goal;
 
-    // Rings (stroke-dasharray matches circumference: 2πr)
-    // Outer ring (r=80): C = 502.65  → Intake / Goal
-    // Inner ring (r=60): C = 376.99  → Burned / Goal
+    /* Ring progress (C = 2πr) */
     const intakeOffset = 502.65 - Math.min(502.65 * (macros.calories / goal), 502.65);
     const burnedOffset = 376.99 - Math.min(376.99 * (burned / goal), 376.99);
     document.getElementById('intakeRing').style.strokeDashoffset = intakeOffset;
     document.getElementById('burnedRing').style.strokeDashoffset = burnedOffset;
 
-    // Stats
+    /* İstatistik kartları */
     document.getElementById('burnedCalDisplay').textContent = burned;
     document.getElementById('mealsToday').textContent       = meals.length;
 
-    // Macro bars (max out at 100%)
-    const maxProtein = goal * 0.30 / 4; // 30% of cals → grams
-    const maxCarbs   = goal * 0.50 / 4;
-    const maxFat     = goal * 0.20 / 9;
-
-    document.getElementById('proteinBar').style.width = `${Math.min(100, macros.protein / maxProtein * 100)}%`;
-    document.getElementById('carbsBar').style.width   = `${Math.min(100, macros.carbs   / maxCarbs   * 100)}%`;
-    document.getElementById('fatBar').style.width     = `${Math.min(100, macros.fat     / maxFat     * 100)}%`;
-
+    /* Makro bar doluluk oranları */
+    const maxP = goal * 0.30 / 4;
+    const maxC = goal * 0.50 / 4;
+    const maxF = goal * 0.20 / 9;
+    document.getElementById('proteinBar').style.width = `${Math.min(100, macros.protein / maxP * 100)}%`;
+    document.getElementById('carbsBar').style.width   = `${Math.min(100, macros.carbs   / maxC * 100)}%`;
+    document.getElementById('fatBar').style.width     = `${Math.min(100, macros.fat     / maxF * 100)}%`;
     document.getElementById('proteinVal').textContent = `${macros.protein}g`;
     document.getElementById('carbsVal').textContent   = `${macros.carbs}g`;
     document.getElementById('fatVal').textContent     = `${macros.fat}g`;
   },
 
-  // ─── MEAL LIST ─────────────────────────────────────
+  /* ── Öğün listesi ── */
   renderMealList() {
     const container = document.getElementById('mealList');
     const meals = DataStore.getTodayMeals();
@@ -1717,11 +1679,11 @@ const UIController = {
       container.innerHTML = `
         <div class="empty-state">
           <i class="fa-regular fa-face-grin-tongue"></i>
-          <p>No meals yet.<br/>Scan food with the camera!</p>
+          <p>Bugün henüz öğün yok.<br/>Kamera ile yiyecek tara!</p>
         </div>`;
       return;
     }
-    container.innerHTML = meals.map(m => `
+    container.innerHTML = [...meals].reverse().map(m => `
       <div class="meal-item">
         <div class="meal-thumb">${m.emoji || '🍽️'}</div>
         <div class="meal-info">
@@ -1735,7 +1697,7 @@ const UIController = {
       </div>`).join('');
   },
 
-  // ─── CHARTS ────────────────────────────────────────
+  /* ── Tüm grafikleri çiz ── */
   renderAllCharts() {
     const macros   = DataStore.getTodayMacros();
     const burned   = StepTracker.getBurnedCalories();
@@ -1745,30 +1707,26 @@ const UIController = {
     ChartManager.renderMacroChart(macros);
   },
 
-  // ─── SETTINGS ──────────────────────────────────────
+  /* ── Ayarlar ── */
   openSettings() {
-    const modal = document.getElementById('settingsModal');
     document.getElementById('userWeight').value  = DataStore.settings.weight;
     document.getElementById('calorieGoal').value = DataStore.settings.goal;
-    modal.classList.remove('hidden');
+    document.getElementById('settingsModal').classList.remove('hidden');
   },
-
   closeSettings() {
     document.getElementById('settingsModal').classList.add('hidden');
   },
-
   saveSettings() {
     const w = parseInt(document.getElementById('userWeight').value);
     const g = parseInt(document.getElementById('calorieGoal').value);
-    if (isNaN(w) || w < 30 || w > 300) { this.toast('Invalid weight', 'error'); return; }
-    if (isNaN(g) || g < 500 || g > 6000) { this.toast('Invalid goal', 'error'); return; }
+    if (isNaN(w) || w < 30  || w > 300)  { this.toast('Geçersiz kilo değeri!', 'error'); return; }
+    if (isNaN(g) || g < 500 || g > 6000) { this.toast('Geçersiz hedef!', 'error'); return; }
     DataStore.settings.weight = w;
     DataStore.settings.goal   = g;
     DataStore.saveSettings();
     this.closeSettings();
     this.refreshDashboard();
-    document.getElementById('legendGoal').textContent = g;
-    this.toast('Settings saved ✓');
+    this.toast('Ayarlar kaydedildi ✓');
   },
 };
 
@@ -1777,8 +1735,8 @@ const UIController = {
 ═══════════════════════════════════════════════════ */
 const CameraModule = {
   stream: null,
-  capturedImage: null,  // base64 data URL
-  detectedMeal: null,   // { name, calories, protein, carbs, fat, grams, portionType, emoji }
+  capturedImage: null,
+  detectedMeal: null,
 
   async open() {
     document.getElementById('cameraModal').classList.remove('hidden');
@@ -1811,8 +1769,7 @@ const CameraModule = {
       video.srcObject = this.stream;
       await video.play();
     } catch (err) {
-      UIController.toast('Camera access denied.', 'error');
-      console.error('Camera error:', err);
+      UIController.toast('Kamera erişimi reddedildi.', 'error');
     }
   },
 
@@ -1822,159 +1779,178 @@ const CameraModule = {
       this.stream = null;
     }
     const video = document.getElementById('cameraFeed');
-    video.srcObject = null;
+    if (video) video.srcObject = null;
   },
 
-  /**
-   * Capture a frame from the video feed → base64 JPEG.
-   */
+  /* Kameradan kare yakala → base64 JPEG */
   capture() {
     const video  = document.getElementById('cameraFeed');
     const canvas = document.getElementById('captureCanvas');
     canvas.width  = video.videoWidth  || 640;
     canvas.height = video.videoHeight || 480;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
     this.capturedImage = canvas.toDataURL('image/jpeg', 0.85);
     this.analyzeImage();
   },
 
-  /**
-   * Send captured image to AI engine → match DB → show result.
-   */
+  /* Görüntüyü AI ile analiz et → yerel DB'den besin değerlerini al */
   async analyzeImage() {
     if (!this.capturedImage) return;
 
-    const resultPanel = document.getElementById('aiResultPanel');
-    const statusText  = document.getElementById('aiStatusText');
-    const detailsEl   = document.getElementById('aiResultDetails');
-    const errorEl     = document.getElementById('aiError');
+    const statusText = document.getElementById('aiStatusText');
+    const detailsEl  = document.getElementById('aiResultDetails');
+    const errorEl    = document.getElementById('aiError');
 
-    resultPanel.classList.remove('hidden');
+    /* UI hazırla */
+    document.getElementById('aiResultPanel').classList.remove('hidden');
     detailsEl.classList.add('hidden');
     errorEl.classList.add('hidden');
-    statusText.textContent = 'AI is analyzing your food…';
     document.getElementById('addMealBtn').disabled = true;
+    statusText.textContent = AIEngine._isDemoMode()
+      ? '🎭 Demo mod — analiz ediliyor…'
+      : '🤖 AI analiz ediyor…';
 
     try {
-      // 1. AI recognition (returns food name only)
+      /* ADIM 1: AI sadece yiyecek ismini döndürür — besin değeri ÜRETMEZ */
       const foodName = await AIEngine.recognizeFood(this.capturedImage);
 
       if (foodName === 'unknown' || !foodName) {
-        throw new Error('Could not identify food in image.');
+        throw new Error('Görüntüde yiyecek tespit edilemedi.');
       }
 
-      statusText.textContent = `Detected: "${foodName}"`;
+      statusText.textContent = `Tespit: "${foodName}"`;
 
-      // 2. Look up in local DB (AI never provides nutritional values)
+      /* ADIM 2: Besin değerini yerel veritabanından al */
       const foodData = FoodDB.lookup(foodName);
       if (!foodData) {
-        throw new Error(`"${foodName}" not found in database. Try: ${Object.keys(FoodDB).filter(k => typeof FoodDB[k] === 'object').join(', ')}`);
+        const available = Object.keys(FoodDB)
+          .filter(k => typeof FoodDB[k] === 'object').join(', ');
+        throw new Error(`"${foodName}" veritabanında bulunamadı.\nMevcut: ${available}`);
       }
 
-      // 3. Estimate portion (automated, no user input)
+      /* ADIM 3: Porsyon otomatik tahmin (kullanıcı gram girmez) */
       const { grams, portionType } = PortionEngine.estimate(foodData.name);
       const nutrition = PortionEngine.calculate(foodData, grams);
 
-      // 4. Cache the detected meal
+      /* ADIM 4: Sonucu sakla */
       this.detectedMeal = {
-        name:        foodData.name,
-        emoji:       foodData.emoji,
+        name: foodData.name,
+        emoji: foodData.emoji,
         grams,
         portionType,
         ...nutrition,
       };
 
-      // 5. Update UI
-      document.getElementById('detectedFoodName').textContent = foodData.name;
+      /* ADIM 5: UI güncelle */
+      document.getElementById('detectedFoodName').textContent = `${foodData.emoji} ${foodData.name}`;
       document.getElementById('rCalories').textContent        = `${nutrition.calories} kcal`;
       document.getElementById('rProtein').textContent         = `${nutrition.protein}g`;
       document.getElementById('rCarbs').textContent           = `${nutrition.carbs}g`;
       document.getElementById('rFat').textContent             = `${nutrition.fat}g`;
-      statusText.textContent = `✓ ${portionType} (~${grams}g)`;
+      statusText.textContent = AIEngine._isDemoMode()
+        ? `🎭 Demo: ${portionType} (~${grams}g)`
+        : `✓ ${portionType} (~${grams}g)`;
       detailsEl.classList.remove('hidden');
       document.getElementById('addMealBtn').disabled = false;
 
     } catch (err) {
-      statusText.textContent = 'Analysis failed';
+      statusText.textContent = 'Analiz başarısız';
       errorEl.textContent    = err.message;
       errorEl.classList.remove('hidden');
       UIController.toast(err.message, 'error', 5000);
     }
   },
 
-  /** Add the detected meal to today's log */
+  /* Tespit edilen öğünü günlüğe ekle */
   addMealToLog() {
     if (!this.detectedMeal) return;
     DataStore.addMeal({ ...this.detectedMeal });
     UIController.refreshDashboard();
     UIController.renderMealList();
-    UIController.toast(`${this.detectedMeal.emoji} ${this.detectedMeal.name} added — ${this.detectedMeal.calories} kcal`);
+    UIController.toast(`${this.detectedMeal.emoji} ${this.detectedMeal.name} eklendi — ${this.detectedMeal.calories} kcal`);
     this.close();
   },
 };
 
 /* ═══════════════════════════════════════════════════
-   9. APP INIT & EVENT BINDINGS
+   9. DEMO BANNER — DOM'a enjekte et
+═══════════════════════════════════════════════════ */
+function injectDemoBanner() {
+  if (document.getElementById('demoBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'demoBanner';
+  banner.innerHTML = `
+    <i class="fa-solid fa-flask"></i>
+    <span><strong>Demo Mod</strong> aktif — API key girmeden test edebilirsin</span>`;
+  Object.assign(banner.style, {
+    display:      'flex',
+    alignItems:   'center',
+    gap:          '8px',
+    background:   'rgba(255,107,53,0.12)',
+    border:       '1px solid rgba(255,107,53,0.3)',
+    borderRadius: '10px',
+    padding:      '10px 14px',
+    fontSize:     '0.8rem',
+    color:        '#ff6b35',
+    marginBottom: '16px',
+  });
+  const dashboard = document.getElementById('tab-dashboard');
+  if (dashboard) dashboard.prepend(banner);
+}
+
+/* ═══════════════════════════════════════════════════
+   10. APP INIT & EVENT BINDINGS
 ═══════════════════════════════════════════════════ */
 const App = {
   init() {
-    // Load persisted settings
     DataStore.loadSettings();
-
-    // Initial UI
+    injectDemoBanner();
     UIController.updateDate();
     UIController.refreshDashboard();
     UIController.renderMealList();
-
-    // Start step tracking
     StepTracker.init();
-
-    // Bind all events
     this.bindEvents();
 
-    console.log('%c🍎 AI Calories ready!', 'color:#c8f230; font-size:14px; font-weight:bold;');
+    const mode = AIEngine._isDemoMode() ? '🎭 DEMO MOD (API key yok)' : '🤖 GERÇEK AI MOD';
+    console.log('%c🍎 AI Calories hazır! ' + mode, 'color:#c8f230; font-size:13px; font-weight:bold;');
   },
 
   bindEvents() {
-    // ── Tab navigation ──────────────────────────────
+    /* Tab navigasyon */
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => UIController.switchTab(btn.dataset.tab));
     });
 
-    // ── FAB: Open camera ────────────────────────────
+    /* FAB — kamerayı aç */
     document.getElementById('scanFab').addEventListener('click', () => CameraModule.open());
 
-    // ── Camera modal ────────────────────────────────
+    /* Kamera modal */
     document.getElementById('closeCamera').addEventListener('click', () => CameraModule.close());
     document.getElementById('captureBtn').addEventListener('click', () => CameraModule.capture());
     document.getElementById('addMealBtn').addEventListener('click', () => CameraModule.addMealToLog());
-
-    // Close on overlay click
     document.getElementById('cameraModal').addEventListener('click', e => {
       if (e.target === e.currentTarget) CameraModule.close();
     });
 
-    // ── Settings modal ───────────────────────────────
+    /* Ayarlar modal */
     document.getElementById('openSettings').addEventListener('click', () => UIController.openSettings());
     document.getElementById('closeSettings').addEventListener('click', () => UIController.closeSettings());
     document.getElementById('saveSettings').addEventListener('click', () => UIController.saveSettings());
-
     document.getElementById('settingsModal').addEventListener('click', e => {
       if (e.target === e.currentTarget) UIController.closeSettings();
     });
 
-    // ── Clear log ────────────────────────────────────
+    /* Günlüğü temizle */
     document.getElementById('clearLogBtn').addEventListener('click', () => {
-      if (confirm('Clear all meals for today?')) {
+      if (confirm('Bugünkü tüm öğünler silinsin mi?')) {
         DataStore.clearTodayMeals();
         UIController.refreshDashboard();
         UIController.renderMealList();
-        UIController.toast('Log cleared', 'info');
+        UIController.toast('Günlük temizlendi', 'info');
       }
     });
 
-    // ── Keyboard: close modals ────────────────────────
+    /* ESC ile modal kapat */
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         CameraModule.close();
@@ -1982,15 +1958,15 @@ const App = {
       }
     });
 
-    // ── Refresh dashboard every minute (step sync) ───
+    /* Her dakika dashboard yenile */
     setInterval(() => UIController.refreshDashboard(), 60_000);
   },
 };
 
-// ─── BOOTSTRAP ──────────────────────────────────────
+/* ── Başlat ── */
 document.addEventListener('DOMContentLoaded', () => App.init());
-</script>
 
-  </body>
+</script>
+</body>
   
 </html>
