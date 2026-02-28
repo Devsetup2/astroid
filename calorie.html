@@ -787,7 +787,7 @@ const GeminiEngine = {
   API_KEY: 'AIzaSyCmgbxpxQ0NymprCrxd0kFeqwJpiZ37208',
 
   async recognizeFood(base64Image) {
-    if (!this.API_KEY || this.API_KEY === 'AIzaSyCmgbxpxQ0NymprCrxd0kFeqwJpiZ37208') {
+    if (!this.API_KEY || this.API_KEY === 'BURAYA_GEMINI_API_KEY_YAZIN') {
       throw new Error('API Key tanımlanmamış. Kodda GeminiEngine.API_KEY alanını doldurun.');
     }
 
@@ -814,10 +814,13 @@ Rules:
       generationConfig: { maxOutputTokens: 20, temperature: 0.1 }
     };
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${this.API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': this.API_KEY,
+      },
       body: JSON.stringify(payload),
     });
 
@@ -1266,4 +1269,3 @@ document.addEventListener('DOMContentLoaded', () => App.init());
 </script>
 </body>
 </html>
-
