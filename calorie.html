@@ -1,1 +1,1165 @@
-<h1>Aİ Calorie</h1>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>AI Calories</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style>
+    /* (CSS kodlarınız aynen kalabilir - yerden tasarruf için kısaltılmıştır) */
+    :root {
+      --bg:          #0a0a0f;
+      --bg2:         #111118;
+      --bg3:         #1a1a24;
+      --card:        #14141e;
+      --card-border: #252535;
+      --accent:      #c8f230;
+      --accent2:     #ff6b35;
+      --accent3:     #3df0c0;
+      --text:        #f0f0f8;
+      --text-muted:  #666680;
+      --danger:      #ff4466;
+      --font-display:'Bebas Neue', sans-serif;
+      --font-body:   'DM Sans', sans-serif;
+      --font-mono:   'JetBrains Mono', monospace;
+      --radius:       16px;
+      --radius-sm:    10px;
+      --shadow:       0 8px 32px rgba(0,0,0,0.6);
+      --glow-accent:  0 0 20px rgba(200,242,48,0.25);
+      --transition:   0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    /* Diğer CSS stilleri aynen kalacak */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
+    .hidden { display: none !important; }
+    /* ... diğer stiller ... */
+  </style>
+</head>
+<body>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-sliders"></i> Ayarlar</h2>
+      <button class="modal-close" id="closeSettings"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <label class="setting-label">
+        <span><i class="fa-solid fa-weight-scale"></i> Ağırlık (kg)</span>
+        <input type="number" id="userWeight" min="30" max="300" value="70" class="setting-input" />
+      </label>
+      <label class="setting-label">
+        <span><i class="fa-solid fa-bullseye"></i> Günlük Kalori Hedefi</span>
+        <input type="number" id="calorieGoal" min="500" max="6000" value="2000" class="setting-input" />
+      </label>
+      <!-- API Key gösterimi eklendi -->
+      <label class="setting-label">
+        <span><i class="fa-solid fa-key"></i> Gemini API Key</span>
+        <input type="password" id="apiKeyInput" value="AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54" class="setting-input" readonly />
+      </label>
+      <button class="btn-primary" id="saveSettings"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAMERA MODAL -->
+<div id="cameraModal" class="modal-overlay hidden">
+  <!-- (Camera modal içeriği aynen kalacak) -->
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-camera"></i> Yiyecek Tara</h2>
+      <button class="modal-close" id="closeCamera"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="camera-container" id="cameraContainer">
+        <video id="cameraFeed" autoplay playsinline muted></video>
+        <div class="camera-overlay">
+          <div class="scan-frame">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+          </div>
+          <div class="scan-line"></div>
+        </div>
+        <canvas id="captureCanvas" class="hidden"></canvas>
+      </div>
+
+      <img id="previewImg" class="preview-img" alt="önizleme" />
+
+      <div id="aiResultPanel" class="ai-result hidden">
+        <div class="ai-result-header">
+          <i class="fa-solid fa-brain"></i>
+          <span id="aiStatusText">Analiz ediliyor…</span>
+        </div>
+        <div id="aiResultDetails" class="hidden">
+          <div class="food-badge"><span id="detectedFoodName">—</span></div>
+          <div class="nutrient-grid">
+            <div class="nutrient-cell"><span class="n-label">Kalori</span><span id="rCalories" class="n-value">—</span></div>
+            <div class="nutrient-cell"><span class="n-label">Protein</span><span id="rProtein" class="n-value">—</span></div>
+            <div class="nutrient-cell"><span class="n-label">Karbonhidrat</span><span id="rCarbs" class="n-value">—</span></div>
+            <div class="nutrient-cell"><span class="n-label">Yağ</span><span id="rFat" class="n-value">—</span></div>
+          </div>
+        </div>
+        <div id="aiError" class="ai-error hidden"></div>
+      </div>
+
+      <div class="camera-actions">
+        <button class="btn-capture" id="captureBtn">
+          <i class="fa-solid fa-circle-dot"></i> Çek
+        </button>
+        <button class="btn-secondary" id="addMealBtn" disabled>
+          <i class="fa-solid fa-circle-plus"></i> Ekle
+        </button>
+      </div>
+      <div class="upload-option">
+        <input type="file" id="fileInput" accept="image/*" />
+        <button class="btn-upload" id="uploadBtn">
+          <i class="fa-solid fa-image"></i> Galeriden Seç
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="logo">
+    <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
+    <span class="logo-text">AI<span class="logo-accent">CAL</span></span>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-btn active" data-tab="dashboard" title="Panel"><i class="fa-solid fa-house"></i></button>
+    <button class="nav-btn" data-tab="log" title="Öğünler"><i class="fa-solid fa-list-ul"></i></button>
+    <button class="nav-btn" data-tab="charts" title="Grafikler"><i class="fa-solid fa-chart-line"></i></button>
+  </nav>
+  <button class="icon-btn" id="openSettings" title="Ayarlar">
+    <i class="fa-solid fa-gear"></i>
+  </button>
+</header>
+
+<!-- MAIN -->
+<main class="app-main">
+  <!-- Dashboard -->
+  <section class="tab-section active" id="tab-dashboard">
+    <div class="date-banner">
+      <span id="todayDate"></span>
+      <span class="date-badge">Bugün</span>
+    </div>
+    <div class="ring-section">
+      <div class="ring-wrapper">
+        <svg class="progress-ring" viewBox="0 0 200 200">
+          <circle class="ring-bg" cx="100" cy="100" r="80"/>
+          <circle class="ring-fill ring-intake" id="intakeRing" cx="100" cy="100" r="80"
+            stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+          <circle class="ring-fill ring-burned" id="burnedRing" cx="100" cy="100" r="60"
+            stroke-dasharray="376.99" stroke-dashoffset="376.99"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-net" id="ringNetCal">0</div>
+          <div class="ring-label">NET KCAL</div>
+        </div>
+      </div>
+      <div class="ring-legend">
+        <div class="legend-item">
+          <span class="legend-dot intake-dot"></span>
+          <div><div class="legend-value" id="legendIntake">0</div><div class="legend-label">Yenen</div></div>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot burned-dot"></span>
+          <div><div class="legend-value" id="legendBurned">0</div><div class="legend-label">Yakılan</div></div>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot goal-dot"></span>
+          <div><div class="legend-value" id="legendGoal">2000</div><div class="legend-label">Hedef</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-shoe-prints"></i></div>
+        <div><div class="stat-value" id="stepCount">0</div><div class="stat-label">Adım</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon fire"><i class="fa-solid fa-fire-flame-curved"></i></div>
+        <div><div class="stat-value" id="burnedCalDisplay">0</div><div class="stat-label">Yakılan kcal</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon fork"><i class="fa-solid fa-utensils"></i></div>
+        <div><div class="stat-value" id="mealsToday">0</div><div class="stat-label">Öğün</div></div>
+      </div>
+    </div>
+
+    <div class="macro-card" style="margin-top:14px;">
+      <div class="macro-title"><i class="fa-solid fa-chart-pie"></i> Günlük Makrolar</div>
+      <div class="macro-row">
+        <span class="macro-lbl">Protein</span>
+        <div class="macro-bar-track"><div class="macro-bar-fill protein-fill" id="proteinBar"></div></div>
+        <span class="macro-val" id="proteinVal">0g</span>
+      </div>
+      <div class="macro-row">
+        <span class="macro-lbl">Karbonhidrat</span>
+        <div class="macro-bar-track"><div class="macro-bar-fill carbs-fill" id="carbsBar"></div></div>
+        <span class="macro-val" id="carbsVal">0g</span>
+      </div>
+      <div class="macro-row">
+        <span class="macro-lbl">Yağ</span>
+        <div class="macro-bar-track"><div class="macro-bar-fill fat-fill" id="fatBar"></div></div>
+        <span class="macro-val" id="fatVal">0g</span>
+      </div>
+    </div>
+
+    <div class="sensor-card" id="sensorStatus" style="margin-top:14px;">
+      <i class="fa-solid fa-mobile-screen-button"></i>
+      <span id="sensorText">Adım sensörü başlatılıyor…</span>
+    </div>
+    <div class="bg-status" id="bgStatus">
+      <div class="bg-dot"></div>
+      <span id="bgStatusText">Arka plan senkronizasyonu aktif</span>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section class="tab-section hidden" id="tab-log">
+    <div class="log-header">
+      <h2 class="section-title"><i class="fa-solid fa-bowl-food"></i> Öğün Günlüğü</h2>
+      <button class="btn-ghost" id="clearLogBtn"><i class="fa-solid fa-trash"></i> Temizle</button>
+    </div>
+    <div id="mealList" class="meal-list">
+      <div class="empty-state">
+        <i class="fa-regular fa-face-grin-tongue"></i>
+        <p>Henüz öğün yok.<br/>Kamera ile yiyecek tara!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section class="tab-section hidden" id="tab-charts">
+    <h2 class="section-title"><i class="fa-solid fa-chart-area"></i> Analitik</h2>
+    <div class="chart-card">
+      <div class="chart-label">Bugün — Alınan vs Yakılan</div>
+      <canvas id="dailyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">Haftalık Özet</div>
+      <canvas id="weeklyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">Makro Dağılımı</div>
+      <canvas id="macroChart"></canvas>
+    </div>
+  </section>
+</main>
+
+<button class="fab" id="scanFab"><i class="fa-solid fa-camera"></i><span class="fab-label">TARA</span></button>
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+'use strict';
+
+/* ── FOOD DB ── */
+const FoodDB = {
+  // MEYVELER
+  apple:     { calories:52,  carbs:13.8, protein:0.3,  fat:0.2,  emoji:'🍎' },
+  banana:    { calories:89,  carbs:22.8, protein:1.1,  fat:0.3,  emoji:'🍌' },
+  orange:    { calories:47,  carbs:12,   protein:0.9,  fat:0.1,  emoji:'🍊' },
+  strawberry:{ calories:32,  carbs:7.7,  protein:0.7,  fat:0.3,  emoji:'🍓' },
+  grapes:    { calories:69,  carbs:18,   protein:0.7,  fat:0.2,  emoji:'🍇' },
+  watermelon:{ calories:30,  carbs:8,    protein:0.6,  fat:0.2,  emoji:'🍉' },
+  pear:      { calories:57,  carbs:15,   protein:0.4,  fat:0.1,  emoji:'🍐' },
+  peach:     { calories:39,  carbs:9.5,  protein:0.9,  fat:0.3,  emoji:'🍑' },
+  cherry:    { calories:50,  carbs:12,   protein:1,    fat:0.3,  emoji:'🍒' },
+  pineapple: { calories:50,  carbs:13,   protein:0.5,  fat:0.1,  emoji:'🍍' },
+  mango:     { calories:60,  carbs:15,   protein:0.8,  fat:0.4,  emoji:'🥭' },
+  lemon:     { calories:29,  carbs:9,    protein:1.1,  fat:0.3,  emoji:'🍋' },
+  kiwi:      { calories:61,  carbs:15,   protein:1.1,  fat:0.5,  emoji:'🥝' },
+  avocado:   { calories:160, carbs:8.5,  protein:2,    fat:15,   emoji:'🥑' },
+  
+  // SEBZELER
+  tomato:    { calories:18,  carbs:3.9,  protein:0.9,  fat:0.2,  emoji:'🍅' },
+  cucumber:  { calories:15,  carbs:3.6,  protein:0.7,  fat:0.1,  emoji:'🥒' },
+  carrot:    { calories:41,  carbs:10,   protein:0.9,  fat:0.2,  emoji:'🥕' },
+  broccoli:  { calories:34,  carbs:7,    protein:2.8,  fat:0.4,  emoji:'🥦' },
+  potato:    { calories:77,  carbs:17,   protein:2,    fat:0.1,  emoji:'🥔' },
+  onion:     { calories:40,  carbs:9,    protein:1.1,  fat:0.1,  emoji:'🧅' },
+  garlic:    { calories:149, carbs:33,   protein:6.4,  fat:0.5,  emoji:'🧄' },
+  pepper:    { calories:20,  carbs:4.6,  protein:0.9,  fat:0.2,  emoji:'🫑' },
+  corn:      { calories:86,  carbs:19,   protein:3.3,  fat:1.4,  emoji:'🌽' },
+  mushroom:  { calories:22,  carbs:3.3,  protein:3.1,  fat:0.3,  emoji:'🍄' },
+  spinach:   { calories:23,  carbs:3.6,  protein:2.9,  fat:0.4,  emoji:'🥬' },
+  lettuce:   { calories:15,  carbs:2.9,  protein:1.4,  fat:0.2,  emoji:'🥬' },
+  eggplant:  { calories:25,  carbs:6,    protein:1,    fat:0.2,  emoji:'🍆' },
+  zucchini:  { calories:17,  carbs:3.1,  protein:1.2,  fat:0.3,  emoji:'🥒' },
+  
+  // ET ÜRÜNLERİ
+  steak:     { calories:271, carbs:0,    protein:26.1, fat:18,   emoji:'🥩' },
+  chicken:   { calories:165, carbs:0,    protein:31,   fat:3.6,  emoji:'🍗' },
+  doner:     { calories:215, carbs:2,    protein:18,   fat:15,   emoji:'🥙' },
+  pastrami:  { calories:147, carbs:1,    protein:21,   fat:6,    emoji:'🥩' },
+  sausage:   { calories:301, carbs:2.7,  protein:12.3, fat:26.8, emoji:'🌭' },
+  salami:    { calories:378, carbs:2.1,  protein:20.7, fat:31.9, emoji:'🍖' },
+  bacon:     { calories:541, carbs:1.4,  protein:37,   fat:42,   emoji:'🥓' },
+  meatball:  { calories:250, carbs:5,    protein:20,   fat:17,   emoji:'🍖' },
+  turkey:    { calories:135, carbs:0,    protein:30,   fat:1,    emoji:'🦃' },
+  fish:      { calories:100, carbs:0,    protein:20,   fat:2,    emoji:'🐟' },
+  salmon:    { calories:208, carbs:0,    protein:22,   fat:13,   emoji:'🐟' },
+  shrimp:    { calories:85,  carbs:0.2,  protein:20,   fat:0.5,  emoji:'🦐' },
+  
+  // SÜT ÜRÜNLERİ
+  milk:      { calories:61,  carbs:4.8,  protein:3.2,  fat:3.3,  emoji:'🥛' },
+  cheese:    { calories:402, carbs:1.3,  protein:25,   fat:33.1, emoji:'🧀' },
+  yogurt:    { calories:59,  carbs:3.6,  protein:10,   fat:0.4,  emoji:'🥛' },
+  butter:    { calories:717, carbs:0.1,  protein:0.9,  fat:81,   emoji:'🧈' },
+  cream:     { calories:345, carbs:2.8,  protein:2.5,  fat:36,   emoji:'🥛' },
+  icecream:  { calories:207, carbs:24,   protein:3.5,  fat:11,   emoji:'🍦' },
+  
+  // TAHILLAR
+  pasta:     { calories:131, carbs:25,   protein:5,    fat:1.1,  emoji:'🍝' },
+  bread:     { calories:265, carbs:49,   protein:8.8,  fat:3.2,  emoji:'🍞' },
+  rice:      { calories:130, carbs:28,   protein:2.7,  fat:0.3,  emoji:'🍚' },
+  oatmeal:   { calories:389, carbs:66,   protein:17,   fat:7,    emoji:'🥣' },
+  cereal:    { calories:379, carbs:80,   protein:7,    fat:2,    emoji:'🥣' },
+  flour:     { calories:364, carbs:76,   protein:10,   fat:1,    emoji:'🥨' },
+  
+  // HAZIR YİYECEKLER
+  pizza:     { calories:266, carbs:33,   protein:11,   fat:10,   emoji:'🍕' },
+  hamburger: { calories:295, carbs:30,   protein:17,   fat:14,   emoji:'🍔' },
+  fries:     { calories:312, carbs:41,   protein:3.4,  fat:15,   emoji:'🍟' },
+  hotdog:    { calories:290, carbs:23,   protein:10,   fat:18,   emoji:'🌭' },
+  salad:     { calories:33,  carbs:6,    protein:2,    fat:0.4,  emoji:'🥗' },
+  soup:      { calories:55,  carbs:7,    protein:3,    fat:1.5,  emoji:'🍲' },
+  
+  // TATLILAR
+  cake:      { calories:350, carbs:52,   protein:4,    fat:14,   emoji:'🎂' },
+  chocolate: { calories:546, carbs:60,   protein:5,    fat:31,   emoji:'🍫' },
+  honey:     { calories:304, carbs:82,   protein:0.3,  fat:0,    emoji:'🍯' },
+  cookie:    { calories:502, carbs:64,   protein:6,    fat:25,   emoji:'🍪' },
+  donut:     { calories:452, carbs:47,   protein:5,    fat:28,   emoji:'🍩' },
+  muffin:    { calories:424, carbs:54,   protein:5,    fat:21,   emoji:'🧁' },
+  pancake:   { calories:227, carbs:28,   protein:6,    fat:9,    emoji:'🥞' },
+  waffle:    { calories:291, carbs:33,   protein:8,    fat:14,   emoji:'🧇' },
+  
+  // İÇECEKLER
+  coffee:    { calories:5,   carbs:0,    protein:0.3,  fat:0.1,  emoji:'☕' },
+  tea:       { calories:1,   carbs:0.3,  protein:0,    fat:0,    emoji:'🍵' },
+  juice:     { calories:45,  carbs:11,   protein:0.5,  fat:0.1,  emoji:'🧃' },
+  cola:      { calories:41,  carbs:10.6, protein:0,    fat:0,    emoji:'🥤' },
+  egg:       { calories:155, carbs:1.1,  protein:13,   fat:11,   emoji:'🥚' },
+};
+
+FoodDB.lookup = function(raw) {
+  if (!raw) return null;
+  const key = raw.toLowerCase().trim().replace(/[^a-z]/g,'');
+  if (this[key]) return { name: key, ...this[key] };
+  const found = Object.keys(this).find(k =>
+    typeof this[k] === 'object' && (k.includes(key) || key.includes(k))
+  );
+  return found ? { name: found, ...this[found] } : null;
+};
+
+/* ── PORTION ENGINE ── */
+const PortionEngine = {
+  rules: {
+    // MEYVELER
+    apple:     { type:'adet', grams:182 },
+    banana:    { type:'adet', grams:118 },
+    orange:    { type:'adet', grams:130 },
+    strawberry:{ type:'adet', grams:12  },
+    grapes:    { type:'salkım', grams:100 },
+    watermelon:{ type:'dilim', grams:280 },
+    pear:      { type:'adet', grams:178 },
+    peach:     { type:'adet', grams:150 },
+    cherry:    { type:'adet', grams:8   },
+    pineapple: { type:'dilim', grams:165 },
+    mango:     { type:'adet', grams:200 },
+    lemon:     { type:'adet', grams:58  },
+    kiwi:      { type:'adet', grams:75  },
+    avocado:   { type:'adet', grams:200 },
+    
+    // SEBZELER
+    tomato:    { type:'adet', grams:123 },
+    cucumber:  { type:'adet', grams:150 },
+    carrot:    { type:'adet', grams:60  },
+    broccoli:  { type:'porsiyon', grams:100 },
+    potato:    { type:'adet', grams:150 },
+    onion:     { type:'adet', grams:110 },
+    garlic:    { type:'diş', grams:5    },
+    pepper:    { type:'adet', grams:50  },
+    corn:      { type:'koçan', grams:150 },
+    mushroom:  { type:'adet', grams:20  },
+    spinach:   { type:'porsiyon', grams:85 },
+    lettuce:   { type:'yaprak', grams:10 },
+    eggplant:  { type:'adet', grams:200 },
+    zucchini:  { type:'adet', grams:200 },
+    
+    // ET ÜRÜNLERİ
+    steak:     { type:'porsiyon', grams:200 },
+    chicken:   { type:'porsiyon', grams:150 },
+    doner:     { type:'porsiyon', grams:180 },
+    pastrami:  { type:'dilim', grams:20  },
+    sausage:   { type:'adet', grams:85  },
+    salami:    { type:'dilim', grams:30  },
+    bacon:     { type:'dilim', grams:25  },
+    meatball:  { type:'adet', grams:50  },
+    turkey:    { type:'dilim', grams:50  },
+    fish:      { type:'porsiyon', grams:150 },
+    salmon:    { type:'porsiyon', grams:150 },
+    shrimp:    { type:'adet', grams:15  },
+    
+    // SÜT ÜRÜNLERİ
+    milk:      { type:'bardak', grams:240 },
+    cheese:    { type:'dilim', grams:28  },
+    yogurt:    { type:'kase', grams:200 },
+    butter:    { type:'kaşık', grams:14  },
+    cream:     { type:'kaşık', grams:15  },
+    icecream:  { type:'top', grams:50   },
+    
+    // TAHILLAR
+    pasta:     { type:'porsiyon', grams:220 },
+    bread:     { type:'dilim', grams:32  },
+    rice:      { type:'porsiyon', grams:180 },
+    oatmeal:   { type:'kase', grams:200 },
+    cereal:    { type:'kase', grams:200 },
+    flour:     { type:'kaşık', grams:10  },
+    
+    // HAZIR YİYECEKLER
+    pizza:     { type:'dilim', grams:125 },
+    hamburger: { type:'adet', grams:250 },
+    fries:     { type:'porsiyon', grams:150 },
+    hotdog:    { type:'adet', grams:150 },
+    salad:     { type:'kase', grams:200 },
+    soup:      { type:'kase', grams:250 },
+    
+    // TATLILAR
+    cake:      { type:'dilim', grams:100 },
+    chocolate: { type:'kare', grams:30  },
+    honey:     { type:'kaşık', grams:21  },
+    cookie:    { type:'adet', grams:30  },
+    donut:     { type:'adet', grams:80  },
+    muffin:    { type:'adet', grams:80  },
+    pancake:   { type:'adet', grams:50  },
+    waffle:    { type:'adet', grams:100 },
+    
+    // İÇECEKLER
+    coffee:    { type:'fincan', grams:240 },
+    tea:       { type:'fincan', grams:240 },
+    juice:     { type:'bardak', grams:250 },
+    cola:      { type:'kutu', grams:330 },
+    egg:       { type:'adet', grams:50  },
+  },
+  estimate(name) {
+    const rule = this.rules[name] || { type:'porsiyon', grams:100 };
+    return { grams: rule.grams, portionType: rule.type };
+  },
+  calculate(food, grams) {
+    const f = grams / 100;
+    return {
+      calories: Math.round(food.calories * f),
+      protein:  Math.round(food.protein  * f * 10) / 10,
+      carbs:    Math.round(food.carbs    * f * 10) / 10,
+      fat:      Math.round(food.fat      * f * 10) / 10,
+    };
+  },
+};
+
+/* ── DATA STORE ── */
+const DataStore = {
+  KEYS: { meals:'aical_meals', settings:'aical_settings', steps:'aical_steps', lastSync:'aical_lastsync' },
+  settings: { weight:70, goal:2000, apiKey:'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54' },
+
+  loadSettings() {
+    try {
+      const r = localStorage.getItem(this.KEYS.settings);
+      if (r) {
+        const saved = JSON.parse(r);
+        Object.assign(this.settings, saved);
+        // API Key'i GeminiEngine'e de set et
+        GeminiEngine.API_KEY = this.settings.apiKey;
+      }
+    } catch(e) {}
+  },
+  saveSettings() {
+    localStorage.setItem(this.KEYS.settings, JSON.stringify(this.settings));
+    GeminiEngine.API_KEY = this.settings.apiKey; // API Key'i güncelle
+  },
+  today() {
+    return new Date().toISOString().split('T')[0];
+  },
+  getMeals() {
+    try { return JSON.parse(localStorage.getItem(this.KEYS.meals) || '[]'); } catch(e) { return []; }
+  },
+  getTodayMeals() {
+    return this.getMeals().filter(m => m.date === this.today());
+  },
+  addMeal(meal) {
+    const meals = this.getMeals();
+    meal.id   = Date.now();
+    meal.date = this.today();
+    meal.time = new Date().toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    meals.push(meal);
+    localStorage.setItem(this.KEYS.meals, JSON.stringify(meals));
+    localStorage.setItem(this.KEYS.lastSync, Date.now().toString());
+    return meal;
+  },
+  clearTodayMeals() {
+    const meals = this.getMeals().filter(m => m.date !== this.today());
+    localStorage.setItem(this.KEYS.meals, JSON.stringify(meals));
+    localStorage.setItem(this.KEYS.lastSync, Date.now().toString());
+  },
+  getWeeklySummary() {
+    const meals = this.getMeals();
+    const result = [];
+    for (let i=6; i>=0; i--) {
+      const d = new Date(); d.setDate(d.getDate()-i);
+      const dateStr = d.toISOString().split('T')[0];
+      const label   = d.toLocaleDateString('tr-TR', { weekday:'short' });
+      const intake  = meals.filter(m => m.date===dateStr).reduce((s,m) => s+m.calories, 0);
+      result.push({ dateStr, label, intake });
+    }
+    return result;
+  },
+  getTodayMacros() {
+    return this.getTodayMeals().reduce((a,m) => ({
+      calories: a.calories + m.calories,
+      protein:  a.protein  + (m.protein||0),
+      carbs:    a.carbs    + (m.carbs||0),
+      fat:      a.fat      + (m.fat||0),
+    }), { calories:0, protein:0, carbs:0, fat:0 });
+  },
+  saveSteps(steps) {
+    const key = `${this.KEYS.steps}_${this.today()}`;
+    localStorage.setItem(key, steps.toString());
+  },
+  loadSteps() {
+    const key = `${this.KEYS.steps}_${this.today()}`;
+    return parseInt(localStorage.getItem(key)||'0');
+  },
+};
+
+/* ── STEP TRACKER ── */
+const StepTracker = {
+  steps: 0,
+  threshold: 10,
+  lastAcc: null,
+  _saveTimer: null,
+
+  init() {
+    this.steps = DataStore.loadSteps(); // Restore from storage
+    UIController.updateSteps(this.steps);
+
+    if ('ActivitySensor' in window) { this._initActivity(); return; }
+    if (window.DeviceMotionEvent) {
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+          .then(s => s==='granted' ? this._startMotion() : UIController.updateSensorStatus('Hareket izni reddedildi.', false))
+          .catch(() => UIController.updateSensorStatus('Hareket izni alınamadı.', false));
+      } else {
+        this._startMotion();
+      }
+    } else {
+      UIController.updateSensorStatus('Bu cihazda adım sensörü desteklenmiyor.', false);
+    }
+  },
+
+  _initActivity() {
+    try {
+      const sensor = new window.ActivitySensor({ type:'steps' });
+      sensor.addEventListener('reading', () => {
+        this.steps = sensor.steps;
+        this._persist();
+        UIController.updateSteps(this.steps);
+        UIController.updateBurnedCalories(this._burned());
+      });
+      sensor.start();
+      UIController.updateSensorStatus('Adım sensörü aktif ✓', true);
+    } catch(e) { this._startMotion(); }
+  },
+
+  _startMotion() {
+    window.addEventListener('devicemotion', (e) => {
+      const acc = e.accelerationIncludingGravity;
+      if (!acc) return;
+      const mag = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2);
+      if (this.lastAcc !== null && Math.abs(mag - this.lastAcc) > this.threshold) {
+        this.steps++;
+        this._persist();
+        UIController.updateSteps(this.steps);
+        UIController.updateBurnedCalories(this._burned());
+      }
+      this.lastAcc = mag;
+    });
+    UIController.updateSensorStatus('İvme ölçer takibi aktif ✓', true);
+  },
+
+  _persist() {
+    clearTimeout(this._saveTimer);
+    this._saveTimer = setTimeout(() => DataStore.saveSteps(this.steps), 2000);
+  },
+
+  _burned() { return Math.round(this.steps * DataStore.settings.weight * 0.0005); },
+  getBurnedCalories() { return this._burned(); },
+};
+
+/* ── GEMINI ENGINE (DÜZELTİLMİŞ) ── */
+const GeminiEngine = {
+  // 🔑 API Key — localStorage'dan yüklenecek, varsayılan olarak bu değer kullanılır
+  API_KEY: 'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54',
+
+  // API Key'i kontrol et ve geçerli değilse hata fırlat
+  _validateApiKey() {
+    if (!this.API_KEY || this.API_KEY.trim() === '') {
+      throw new Error('Gemini API Key tanımlanmamış. Lütfen ayarlardan API Key\'inizi girin.');
+    }
+    if (this.API_KEY === 'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54') {
+      console.warn('Varsayılan API key kullanılıyor. Kendi API key\'inizi kullanmanız önerilir.');
+    }
+  },
+
+  async recognizeFood(base64Image) {
+    try {
+      this._validateApiKey();
+
+      // Remove data URL prefix
+      const imageData = base64Image.split(',')[1] || base64Image;
+      const mimeType  = base64Image.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+
+      const payload = {
+        contents: [{
+          parts: [
+            {
+              inline_data: { mime_type: mimeType, data: imageData }
+            },
+            {
+              text: `You are a food identification assistant. Look at this image and return ONLY the name of the single most prominent food item you see. 
+Rules:
+- Return ONLY one word in English, lowercase
+- No explanation, no punctuation, no nutritional info
+- If you cannot identify food, return: unknown
+- Examples of valid responses: apple, banana, pizza, chicken, salad, bread, egg, pasta`
+            }
+          ]
+        }],
+        generationConfig: { maxOutputTokens: 20, temperature: 0.1 }
+      };
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.API_KEY}`;
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 saniye timeout
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        const msg = err?.error?.message || `API Hatası ${response.status}`;
+        
+        // Özel hata mesajları
+        if (response.status === 403) {
+          throw new Error('API Key geçersiz veya yetkisiz. Lütfen API Key\'inizi kontrol edin.');
+        } else if (response.status === 429) {
+          throw new Error('API kotası aşıldı. Lütfen daha sonra tekrar deneyin.');
+        } else if (response.status === 400) {
+          throw new Error('Geçersiz istek. Lütfen tekrar deneyin.');
+        }
+        throw new Error(`Gemini API Hatası (${response.status}): ${msg}`);
+      }
+
+      const data = await response.json();
+      const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase() || 'unknown';
+      
+      // Temizlik: sadece harf karakterlerini al
+      const clean = raw.replace(/[^a-z]/g, '');
+      
+      if (!clean || clean === 'unknown') {
+        throw new Error('Görüntüde yiyecek tespit edilemedi.');
+      }
+      
+      return clean;
+
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('İstek zaman aşımına uğradı. Lütfen tekrar deneyin.');
+      }
+      throw error; // Hatayı yukarı fırlat
+    }
+  },
+};
+
+/* ── CHART MANAGER ── */
+const ChartManager = {
+  instances: {},
+  opts: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { labels: { color:'#666680', font:{ family:'JetBrains Mono', size:10 } } } },
+    scales: {
+      x: { ticks:{ color:'#666680', font:{ size:10 } }, grid:{ color:'rgba(255,255,255,0.05)' } },
+      y: { ticks:{ color:'#666680', font:{ size:10 } }, grid:{ color:'rgba(255,255,255,0.05)' } },
+    },
+    animation: { duration:800, easing:'easeOutQuart' },
+  },
+
+  renderDailyChart(intake, burned) {
+    if (this.instances.daily) this.instances.daily.destroy();
+    const ctx = document.getElementById('dailyChart');
+    if (!ctx) return;
+    this.instances.daily = new Chart(ctx, {
+      type:'bar',
+      data: {
+        labels:['Alınan','Yakılan','Net'],
+        datasets:[{ data:[intake,burned,Math.max(0,intake-burned)],
+          backgroundColor:['rgba(200,242,48,0.7)','rgba(255,107,53,0.7)','rgba(61,240,192,0.7)'],
+          borderColor:['#c8f230','#ff6b35','#3df0c0'], borderWidth:2, borderRadius:8 }],
+      },
+      options:{ ...this.opts, plugins:{ ...this.opts.plugins, legend:{ display:false } } },
+    });
+  },
+
+  renderWeeklyChart(data) {
+    if (this.instances.weekly) this.instances.weekly.destroy();
+    const ctx = document.getElementById('weeklyChart');
+    if (!ctx) return;
+    this.instances.weekly = new Chart(ctx, {
+      type:'line',
+      data: {
+        labels: data.map(d=>d.label),
+        datasets:[{ label:'Kalori (kcal)', data:data.map(d=>d.intake),
+          borderColor:'#c8f230', backgroundColor:'rgba(200,242,48,0.1)',
+          fill:true, tension:0.45, pointBackgroundColor:'#c8f230', pointRadius:5 }],
+      },
+      options: this.opts,
+    });
+  },
+
+  renderMacroChart(macros) {
+    if (this.instances.macro) this.instances.macro.destroy();
+    const ctx = document.getElementById('macroChart');
+    if (!ctx) return;
+    this.instances.macro = new Chart(ctx, {
+      type:'doughnut',
+      data: {
+        labels:['Protein','Karbonhidrat','Yağ'],
+        datasets:[{ data:[macros.protein,macros.carbs,macros.fat],
+          backgroundColor:['rgba(61,240,192,0.8)','rgba(200,242,48,0.8)','rgba(255,107,53,0.8)'],
+          borderColor:['#0a0a0f'], borderWidth:3, hoverOffset:6 }],
+      },
+      options: {
+        responsive:true, maintainAspectRatio:true, cutout:'65%',
+        plugins: { legend:{ position:'bottom', labels:{ color:'#666680', font:{ family:'JetBrains Mono', size:10 }, padding:14 } } },
+        animation:{ duration:800 },
+      },
+    });
+  },
+};
+
+/* ── UI CONTROLLER (DÜZELTİLMİŞ) ── */
+const UIController = {
+  toast(message, type='success', duration=3000) {
+    const c = document.getElementById('toastContainer');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = message;
+    c.appendChild(el);
+    setTimeout(() => {
+      el.style.animation = 'toastOut 0.3s ease forwards';
+      setTimeout(() => el.remove(), 300);
+    }, duration);
+  },
+
+  switchTab(tabId) {
+    document.querySelectorAll('.tab-section').forEach(s => { s.classList.add('hidden'); s.classList.remove('active'); });
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const sec = document.getElementById(`tab-${tabId}`);
+    if (sec) { sec.classList.remove('hidden'); sec.classList.add('active'); }
+    const btn = document.querySelector(`[data-tab="${tabId}"]`);
+    if (btn) btn.classList.add('active');
+    if (tabId === 'charts') this.renderAllCharts();
+  },
+
+  updateDate() {
+    const el = document.getElementById('todayDate');
+    if (el) el.textContent = new Date().toLocaleDateString('tr-TR', { weekday:'long', month:'long', day:'numeric' });
+  },
+
+  updateSteps(steps) {
+    document.getElementById('stepCount').textContent = steps.toLocaleString('tr-TR');
+  },
+
+  updateBurnedCalories(burned) {
+    document.getElementById('burnedCalDisplay').textContent = burned;
+    this.refreshDashboard();
+  },
+
+  updateSensorStatus(text, active) {
+    const el   = document.getElementById('sensorText');
+    const card = document.getElementById('sensorStatus');
+    if (el) el.textContent = text;
+    if (card) {
+      card.style.borderColor = active ? 'rgba(61,240,192,0.3)' : 'rgba(255,68,102,0.3)';
+      card.style.color       = active ? 'var(--accent3)' : 'var(--danger)';
+    }
+  },
+
+  refreshDashboard() {
+    const macros = DataStore.getTodayMacros();
+    const burned = StepTracker.getBurnedCalories();
+    const goal   = DataStore.settings.goal;
+    const net    = macros.calories - burned;
+    const meals  = DataStore.getTodayMeals();
+
+    document.getElementById('ringNetCal').textContent    = net;
+    document.getElementById('legendIntake').textContent  = macros.calories;
+    document.getElementById('legendBurned').textContent  = burned;
+    document.getElementById('legendGoal').textContent    = goal;
+
+    document.getElementById('intakeRing').style.strokeDashoffset = 502.65 - Math.min(502.65 * (macros.calories / goal), 502.65);
+    document.getElementById('burnedRing').style.strokeDashoffset = 376.99 - Math.min(376.99 * (burned / goal), 376.99);
+
+    document.getElementById('burnedCalDisplay').textContent = burned;
+    document.getElementById('mealsToday').textContent       = meals.length;
+
+    const maxP = goal * 0.30 / 4;
+    const maxC = goal * 0.50 / 4;
+    const maxF = goal * 0.20 / 9;
+    document.getElementById('proteinBar').style.width = `${Math.min(100, macros.protein/maxP*100)}%`;
+    document.getElementById('carbsBar').style.width   = `${Math.min(100, macros.carbs/maxC*100)}%`;
+    document.getElementById('fatBar').style.width     = `${Math.min(100, macros.fat/maxF*100)}%`;
+    document.getElementById('proteinVal').textContent = `${macros.protein}g`;
+    document.getElementById('carbsVal').textContent   = `${macros.carbs}g`;
+    document.getElementById('fatVal').textContent     = `${macros.fat}g`;
+
+    // Background sync status
+    const lastSync = localStorage.getItem(DataStore.KEYS.lastSync);
+    if (lastSync) {
+      const ago = Math.round((Date.now() - parseInt(lastSync)) / 1000);
+      document.getElementById('bgStatusText').textContent =
+        ago < 60 ? 'Az önce senkronize edildi' : `${Math.round(ago/60)} dakika önce senkronize edildi`;
+    }
+  },
+
+  renderMealList() {
+    const container = document.getElementById('mealList');
+    const meals = DataStore.getTodayMeals();
+    if (!meals.length) {
+      container.innerHTML = `<div class="empty-state"><i class="fa-regular fa-face-grin-tongue"></i><p>Henüz öğün yok.<br/>Kamera ile yiyecek tara!</p></div>`;
+      return;
+    }
+    container.innerHTML = meals.map(m => `
+      <div class="meal-item">
+        <div class="meal-thumb">${m.emoji||'🍽️'}</div>
+        <div class="meal-info">
+          <div class="meal-name">${m.name}</div>
+          <div class="meal-meta">${m.portionType} · ${m.grams}g · ${m.time}</div>
+        </div>
+        <div>
+          <div class="meal-cal">${m.calories}</div>
+          <span class="meal-cal-unit">kcal</span>
+        </div>
+      </div>`).join('');
+  },
+
+  renderAllCharts() {
+    const macros   = DataStore.getTodayMacros();
+    const burned   = StepTracker.getBurnedCalories();
+    const weekData = DataStore.getWeeklySummary();
+    ChartManager.renderDailyChart(macros.calories, burned);
+    ChartManager.renderWeeklyChart(weekData);
+    ChartManager.renderMacroChart(macros);
+  },
+
+  openSettings() {
+    document.getElementById('userWeight').value  = DataStore.settings.weight;
+    document.getElementById('calorieGoal').value = DataStore.settings.goal;
+    document.getElementById('apiKeyInput').value = DataStore.settings.apiKey;
+    document.getElementById('settingsModal').classList.remove('hidden');
+  },
+  closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); },
+
+  saveSettings() {
+    const w = parseInt(document.getElementById('userWeight').value);
+    const g = parseInt(document.getElementById('calorieGoal').value);
+    const apiKey = document.getElementById('apiKeyInput').value.trim();
+    
+    if (isNaN(w)||w<30||w>300) { this.toast('Geçersiz ağırlık değeri', 'error'); return; }
+    if (isNaN(g)||g<500||g>6000) { this.toast('Geçersiz kalori hedefi', 'error'); return; }
+    
+    DataStore.settings.weight = w;
+    DataStore.settings.goal   = g;
+    if (apiKey) DataStore.settings.apiKey = apiKey;
+    
+    DataStore.saveSettings();
+    this.closeSettings();
+    this.refreshDashboard();
+    this.toast('Ayarlar kaydedildi ✓');
+  },
+};
+
+/* ── CAMERA MODULE (DÜZELTİLMİŞ) ── */
+const CameraModule = {
+  stream: null,
+  capturedImage: null,
+  detectedMeal: null,
+
+  async open() {
+    document.getElementById('cameraModal').classList.remove('hidden');
+    this.reset();
+    await this.startCamera();
+  },
+
+  close() {
+    document.getElementById('cameraModal').classList.add('hidden');
+    this.stopCamera();
+    this.reset();
+  },
+
+  reset() {
+    this.capturedImage = null;
+    this.detectedMeal  = null;
+    document.getElementById('aiResultPanel').classList.add('hidden');
+    document.getElementById('aiResultDetails').classList.add('hidden');
+    document.getElementById('aiError').classList.add('hidden');
+    document.getElementById('addMealBtn').disabled = true;
+    const prev = document.getElementById('previewImg');
+    prev.style.display = 'none'; prev.src = '';
+    document.getElementById('cameraContainer').style.display = 'block';
+  },
+
+  async startCamera() {
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode:{ ideal:'environment' }, width:{ ideal:1280 } },
+        audio: false,
+      });
+      const video = document.getElementById('cameraFeed');
+      video.srcObject = this.stream;
+      await video.play();
+    } catch(e) {
+      UIController.toast('Kamera erişimi reddedildi.', 'error');
+    }
+  },
+
+  stopCamera() {
+    if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; }
+    document.getElementById('cameraFeed').srcObject = null;
+  },
+
+  capture() {
+    const video  = document.getElementById('cameraFeed');
+    const canvas = document.getElementById('captureCanvas');
+    canvas.width  = video.videoWidth  || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    this.capturedImage = canvas.toDataURL('image/jpeg', 0.85);
+    this.analyzeImage();
+  },
+
+  loadFromFile(file) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        this.capturedImage = e.target.result;
+        // Show preview
+        const prev = document.getElementById('previewImg');
+        prev.src = this.capturedImage;
+        prev.style.display = 'block';
+        document.getElementById('cameraContainer').style.display = 'none';
+        resolve();
+      };
+      reader.readAsDataURL(file);
+    });
+  },
+
+  async analyzeImage() {
+    if (!this.capturedImage) return;
+    const resultPanel = document.getElementById('aiResultPanel');
+    const statusText  = document.getElementById('aiStatusText');
+    const detailsEl   = document.getElementById('aiResultDetails');
+    const errorEl     = document.getElementById('aiError');
+
+    resultPanel.classList.remove('hidden');
+    detailsEl.classList.add('hidden');
+    errorEl.classList.add('hidden');
+    statusText.textContent = '🤖 Gemini AI yiyeceği analiz ediyor…';
+    document.getElementById('addMealBtn').disabled = true;
+
+    try {
+      const foodName = await GeminiEngine.recognizeFood(this.capturedImage);
+      
+      if (!foodName || foodName === 'unknown') {
+        throw new Error('Görüntüde yiyecek tespit edilemedi.');
+      }
+
+      statusText.textContent = `Tespit edildi: "${foodName}"`;
+
+      const foodData = FoodDB.lookup(foodName);
+      if (!foodData) {
+        // Eğer tam eşleşme yoksa, benzer yiyecekleri öner
+        const similar = Object.keys(FoodDB)
+          .filter(k => typeof FoodDB[k] === 'object')
+          .filter(k => k.includes(foodName) || foodName.includes(k))
+          .slice(0, 3)
+          .map(k => FoodDB[k].emoji + ' ' + k);
+        
+        let errorMsg = `"${foodName}" veritabanında bulunamadı.`;
+        if (similar.length > 0) {
+          errorMsg += ` Benzer: ${similar.join(', ')}`;
+        }
+        throw new Error(errorMsg);
+      }
+
+      const { grams, portionType } = PortionEngine.estimate(foodData.name);
+      const nutrition = PortionEngine.calculate(foodData, grams);
+
+      this.detectedMeal = { name:foodData.name, emoji:foodData.emoji, grams, portionType, ...nutrition };
+
+      document.getElementById('detectedFoodName').textContent = foodData.name;
+      document.getElementById('rCalories').textContent = `${nutrition.calories} kcal`;
+      document.getElementById('rProtein').textContent  = `${nutrition.protein}g`;
+      document.getElementById('rCarbs').textContent    = `${nutrition.carbs}g`;
+      document.getElementById('rFat').textContent      = `${nutrition.fat}g`;
+      statusText.textContent = `✓ ${portionType} (~${grams}g)`;
+      detailsEl.classList.remove('hidden');
+      document.getElementById('addMealBtn').disabled = false;
+
+    } catch(err) {
+      statusText.textContent = '❌ Analiz başarısız';
+      errorEl.textContent    = err.message;
+      errorEl.classList.remove('hidden');
+      UIController.toast(err.message, 'error', 6000);
+    }
+  },
+
+  addMealToLog() {
+    if (!this.detectedMeal) return;
+    DataStore.addMeal({ ...this.detectedMeal });
+    UIController.refreshDashboard();
+    UIController.renderMealList();
+    UIController.toast(`${this.detectedMeal.emoji} ${this.detectedMeal.name} eklendi — ${this.detectedMeal.calories} kcal`);
+    this.close();
+  },
+};
+
+/* ── BACKGROUND SYNC ── */
+const BackgroundSync = {
+  interval: null,
+
+  start() {
+    // Sync every 30 seconds even when in background (Page Visibility API)
+    this.interval = setInterval(() => {
+      UIController.refreshDashboard();
+      DataStore.saveSteps(StepTracker.steps);
+    }, 30_000);
+
+    // Sync on visibility change (app resume)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        StepTracker.steps = DataStore.loadSteps();
+        UIController.updateSteps(StepTracker.steps);
+        UIController.refreshDashboard();
+        UIController.toast('Veriler güncellendi', 'info', 2000);
+      }
+    });
+
+    // Sync before page unload
+    window.addEventListener('beforeunload', () => {
+      DataStore.saveSteps(StepTracker.steps);
+      localStorage.setItem(DataStore.KEYS.lastSync, Date.now().toString());
+    });
+
+    // Service Worker registration for background support
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('#').catch(() => {});
+    }
+  },
+};
+
+/* ── APP INIT (DÜZELTİLMİŞ) ── */
+const App = {
+  init() {
+    DataStore.loadSettings(); // Bu API key'i GeminiEngine'e set eder
+    GeminiEngine.API_KEY = DataStore.settings.apiKey; // API key'i güncelle
+    
+    UIController.updateDate();
+    UIController.refreshDashboard();
+    UIController.renderMealList();
+    StepTracker.init();
+    BackgroundSync.start();
+    this.bindEvents();
+    
+    // API key kontrolü
+    if (!GeminiEngine.API_KEY || GeminiEngine.API_KEY.trim() === '') {
+      UIController.toast('Lütfen ayarlardan Gemini API Key\'inizi girin', 'error', 5000);
+    } else if (GeminiEngine.API_KEY === 'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54') {
+      UIController.toast('Varsayılan API key kullanılıyor. Ayarlardan değiştirebilirsiniz.', 'info', 4000);
+    }
+  },
+
+  bindEvents() {
+    document.querySelectorAll('.nav-btn').forEach(btn =>
+      btn.addEventListener('click', () => UIController.switchTab(btn.dataset.tab))
+    );
+
+    document.getElementById('scanFab').addEventListener('click', () => CameraModule.open());
+    document.getElementById('closeCamera').addEventListener('click', () => CameraModule.close());
+    document.getElementById('captureBtn').addEventListener('click', () => CameraModule.capture());
+    document.getElementById('addMealBtn').addEventListener('click', () => CameraModule.addMealToLog());
+    document.getElementById('cameraModal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) CameraModule.close();
+    });
+
+    // File upload
+    document.getElementById('uploadBtn').addEventListener('click', () =>
+      document.getElementById('fileInput').click()
+    );
+    document.getElementById('fileInput').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      await CameraModule.loadFromFile(file);
+      CameraModule.analyzeImage();
+      e.target.value = '';
+    });
+
+    document.getElementById('openSettings').addEventListener('click', () => UIController.openSettings());
+    document.getElementById('closeSettings').addEventListener('click', () => UIController.closeSettings());
+    document.getElementById('saveSettings').addEventListener('click', () => UIController.saveSettings());
+    document.getElementById('settingsModal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) UIController.closeSettings();
+    });
+
+    document.getElementById('clearLogBtn').addEventListener('click', () => {
+      if (confirm('Bugünkü tüm öğünler silinsin mi?')) {
+        DataStore.clearTodayMeals();
+        UIController.refreshDashboard();
+        UIController.renderMealList();
+        UIController.toast('Günlük temizlendi', 'info');
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { CameraModule.close(); UIController.closeSettings(); }
+    });
+  },
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
