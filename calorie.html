@@ -18,33 +18,334 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
   <style>
-    /* (CSS kodlarınız aynen kalabilir - yerden tasarruf için kısaltılmıştır) */
-    :root {
-      --bg:          #0a0a0f;
-      --bg2:         #111118;
-      --bg3:         #1a1a24;
-      --card:        #14141e;
-      --card-border: #252535;
-      --accent:      #c8f230;
-      --accent2:     #ff6b35;
-      --accent3:     #3df0c0;
-      --text:        #f0f0f8;
-      --text-muted:  #666680;
-      --danger:      #ff4466;
-      --font-display:'Bebas Neue', sans-serif;
-      --font-body:   'DM Sans', sans-serif;
-      --font-mono:   'JetBrains Mono', monospace;
-      --radius:       16px;
-      --radius-sm:    10px;
-      --shadow:       0 8px 32px rgba(0,0,0,0.6);
-      --glow-accent:  0 0 20px rgba(200,242,48,0.25);
-      --transition:   0.25s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    /* Diğer CSS stilleri aynen kalacak */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
-    .hidden { display: none !important; }
-    /* ... diğer stiller ... */
+:root {
+  --bg:          #0a0a0f;
+  --bg2:         #111118;
+  --bg3:         #1a1a24;
+  --card:        #14141e;
+  --card-border: #252535;
+  --accent:      #c8f230;
+  --accent2:     #ff6b35;
+  --accent3:     #3df0c0;
+  --text:        #f0f0f8;
+  --text-muted:  #666680;
+  --danger:      #ff4466;
+  --font-display:'Bebas Neue', sans-serif;
+  --font-body:   'DM Sans', sans-serif;
+  --font-mono:   'JetBrains Mono', monospace;
+  --radius:       16px;
+  --radius-sm:    10px;
+  --shadow:       0 8px 32px rgba(0,0,0,0.6);
+  --glow-accent:  0 0 20px rgba(200,242,48,0.25);
+  --transition:   0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(200,242,48,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(255,107,53,0.06) 0%, transparent 55%);
+}
+button { cursor: pointer; border: none; background: none; font-family: var(--font-body); }
+input  { font-family: var(--font-body); }
+canvas { max-width: 100%; }
+.hidden { display: none !important; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+
+/* ── HEADER ── */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(10,10,15,0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--card-border);
+}
+.logo { display: flex; align-items: center; gap: 8px; }
+.logo-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: var(--accent); display: grid; place-items: center;
+  font-size: 15px; color: #0a0a0f; flex-shrink: 0;
+}
+.logo-text { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px; line-height: 1; }
+.logo-accent { color: var(--accent); }
+.header-nav { display: flex; gap: 4px; background: var(--bg3); padding: 4px; border-radius: 12px; }
+.nav-btn { width: 36px; height: 32px; border-radius: 8px; color: var(--text-muted); font-size: 13px; transition: all 0.2s; }
+.nav-btn:hover { color: var(--text); }
+.nav-btn.active { background: var(--accent); color: #0a0a0f; box-shadow: var(--glow-accent); }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--bg3); color: var(--text-muted); font-size: 15px;
+  display: grid; place-items: center;
+  transition: all 0.2s; border: 1px solid var(--card-border);
+}
+.icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── MAIN ── */
+.app-main { max-width: 540px; margin: 0 auto; padding: 16px 14px 110px; }
+.tab-section { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+.date-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+  font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);
+}
+.date-badge {
+  background: rgba(200,242,48,0.12); color: var(--accent);
+  padding: 3px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; border: 1px solid rgba(200,242,48,0.25);
+}
+
+/* ── RING SECTION ── */
+.ring-section {
+  display: flex; align-items: center; gap: 20px;
+  padding: 20px; background: var(--card);
+  border-radius: var(--radius); border: 1px solid var(--card-border);
+  margin-bottom: 14px; box-shadow: var(--shadow);
+}
+.ring-wrapper { position: relative; width: 130px; min-width: 130px; }
+.progress-ring { width: 130px; height: 130px; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 13; }
+.ring-fill { fill: none; stroke-width: 13; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); }
+.ring-intake { stroke: var(--accent); filter: drop-shadow(0 0 8px rgba(200,242,48,0.5)); }
+.ring-burned { stroke: var(--accent2); filter: drop-shadow(0 0 8px rgba(255,107,53,0.5)); }
+.ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.ring-net { font-family: var(--font-display); font-size: 2rem; line-height: 1; }
+.ring-label { font-size: 0.5rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; font-family: var(--font-mono); }
+.ring-legend { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.legend-item { display: flex; align-items: center; gap: 10px; }
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.intake-dot  { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.burned-dot  { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+.goal-dot    { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+.legend-value { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; line-height: 1; }
+.legend-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm); padding: 13px 10px;
+  display: flex; align-items: center; gap: 8px; transition: border-color 0.2s;
+  min-width: 0;
+}
+.stat-card:hover { border-color: var(--accent); }
+.stat-icon { font-size: 18px; color: var(--accent3); width: 24px; text-align: center; flex-shrink: 0; }
+.stat-icon.fire { color: var(--accent2); }
+.stat-icon.fork { color: var(--accent); }
+.stat-value { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+
+/* ── MACRO CARD ── */
+.macro-card {
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
+}
+.macro-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.macro-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.macro-row:last-child { margin-bottom: 0; }
+.macro-lbl { width: 48px; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+.macro-bar-track { flex: 1; height: 7px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+.macro-bar-fill { height: 100%; border-radius: 4px; width: 0%; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+.protein-fill { background: linear-gradient(90deg,#3df0c0,#22c7a0); }
+.carbs-fill   { background: linear-gradient(90deg,var(--accent),#9fc400); }
+.fat-fill     { background: linear-gradient(90deg,var(--accent2),#ff8c55); }
+.macro-val { width: 34px; text-align: right; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text); flex-shrink: 0; }
+
+/* ── SENSOR CARD ── */
+.sensor-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  background: rgba(61,240,192,0.06); border: 1px solid rgba(61,240,192,0.15);
+  border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--accent3);
+}
+
+/* ── LOG TAB ── */
+.section-title { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.section-title i { color: var(--accent); }
+.log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.log-header .section-title { margin-bottom: 0; }
+.btn-ghost { font-size: 0.72rem; color: var(--text-muted); padding: 6px 11px; border-radius: 8px; border: 1px solid var(--card-border); transition: all 0.2s; }
+.btn-ghost:hover { color: var(--danger); border-color: var(--danger); }
+.meal-list { display: flex; flex-direction: column; gap: 10px; }
+.meal-item {
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm); padding: 13px 14px;
+  display: flex; align-items: center; gap: 12px;
+  animation: slideIn 0.3s var(--transition);
+}
+@keyframes slideIn { from { opacity:0; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
+.meal-thumb { width: 42px; height: 42px; border-radius: 9px; background: var(--bg3); flex-shrink: 0; display: grid; place-items: center; font-size: 21px; }
+.meal-info { flex: 1; min-width: 0; }
+.meal-name { font-weight: 600; font-size: 0.9rem; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meal-meta { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; font-family: var(--font-mono); }
+.meal-cal { font-family: var(--font-mono); font-size: 1.05rem; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+.meal-cal-unit { font-size: 0.58rem; color: var(--text-muted); display: block; text-align: right; }
+.empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+.empty-state i { font-size: 2.8rem; margin-bottom: 14px; display: block; }
+.empty-state p { font-size: 0.88rem; line-height: 1.7; }
+
+/* ── CHARTS TAB ── */
+.chart-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
+.chart-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 14px; font-family: var(--font-mono); }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 200; display: flex; align-items: center; gap: 10px;
+  padding: 14px 30px; background: var(--accent); color: #0a0a0f;
+  border-radius: 50px; font-family: var(--font-display); letter-spacing: 2px;
+  box-shadow: 0 8px 30px rgba(200,242,48,0.45), 0 2px 10px rgba(0,0,0,0.5);
+  transition: all 0.2s ease; white-space: nowrap;
+}
+.fab:hover { transform: translateX(-50%) translateY(-3px); box-shadow: 0 12px 40px rgba(200,242,48,0.55); }
+.fab:active { transform: translateX(-50%) scale(0.96); }
+.fab i { font-size: 1rem; }
+.fab-label { font-size: 0.88rem; }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: overlayIn 0.2s ease;
+}
+@keyframes overlayIn { from { opacity:0; } to { opacity:1; } }
+.modal-card {
+  width: 100%; max-width: 540px;
+  background: var(--bg2);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-top: 1px solid var(--card-border);
+  border-left: 1px solid var(--card-border);
+  border-right: 1px solid var(--card-border);
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  animation: sheetUp 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  max-height: 92dvh; overflow-y: auto;
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 18px 14px; border-bottom: 1px solid var(--card-border);
+  position: sticky; top: 0; background: var(--bg2); z-index: 1;
+}
+.modal-header h2 { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
+.modal-header h2 i { color: var(--accent); }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; background: var(--bg3); color: var(--text-muted); font-size: 13px; display: grid; place-items: center; transition: all 0.2s; }
+.modal-close:hover { color: var(--danger); background: rgba(255,68,102,0.1); }
+.modal-body { padding: 18px; }
+
+/* Settings */
+.setting-label { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: var(--bg3); border-radius: var(--radius-sm); border: 1px solid var(--card-border); margin-bottom: 10px; font-size: 0.88rem; }
+.setting-label span { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.83rem; }
+.setting-label span i { color: var(--accent); }
+.setting-input { width: 85px; text-align: right; background: var(--bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 9px; color: var(--text); font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; outline: none; transition: border-color 0.2s; }
+.setting-input:focus { border-color: var(--accent); }
+
+/* API Key setting - removed (key is hardcoded in GeminiEngine.API_KEY) */
+
+.btn-primary { width: 100%; padding: 13px; background: var(--accent); color: #0a0a0f; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 2px; transition: all 0.2s; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary:hover { box-shadow: var(--glow-accent); transform: translateY(-1px); }
+
+/* Camera */
+.camera-container { position: relative; width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; background: #000; margin-bottom: 14px; }
+#cameraFeed { width: 100%; height: 100%; object-fit: cover; display: block; }
+.camera-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.scan-frame { position: relative; width: 60%; aspect-ratio: 1; }
+.corner { position: absolute; width: 26px; height: 26px; border-color: var(--accent); border-style: solid; border-width: 0; }
+.corner.tl { top:0; left:0; border-top-width:3px; border-left-width:3px; border-radius:6px 0 0 0; }
+.corner.tr { top:0; right:0; border-top-width:3px; border-right-width:3px; border-radius:0 6px 0 0; }
+.corner.bl { bottom:0; left:0; border-bottom-width:3px; border-left-width:3px; border-radius:0 0 0 6px; }
+.corner.br { bottom:0; right:0; border-bottom-width:3px; border-right-width:3px; border-radius:0 0 6px 0; }
+.scan-line { position: absolute; left:10%; right:10%; height:2px; background: linear-gradient(90deg,transparent,var(--accent),transparent); animation: scanMove 2.5s ease-in-out infinite; top:10%; box-shadow: 0 0 12px var(--accent); }
+@keyframes scanMove { 0% { top:15%; } 50% { top:80%; } 100% { top:15%; } }
+
+.ai-result { background: var(--bg3); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 14px; }
+.ai-result-header { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
+.ai-result-header i { color: var(--accent3); font-size: 0.95rem; }
+.food-badge { display: inline-block; background: rgba(200,242,48,0.1); border: 1px solid rgba(200,242,48,0.3); color: var(--accent); padding: 5px 14px; border-radius: 20px; font-weight: 600; font-size: 0.95rem; text-transform: capitalize; margin-bottom: 12px; }
+.nutrient-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+.nutrient-cell { background: var(--bg); border-radius: 8px; padding: 9px 6px; text-align: center; }
+.n-label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+.n-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+.ai-error { color: var(--danger); font-size: 0.82rem; text-align: center; padding: 8px; line-height: 1.5; }
+
+.camera-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-capture { padding: 13px; background: var(--card-border); color: var(--text); border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; border: 1px solid var(--card-border); }
+.btn-capture:hover { background: var(--bg3); }
+.btn-capture i { color: var(--accent2); }
+.btn-secondary { padding: 13px; background: rgba(200,242,48,0.1); color: var(--accent); border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(200,242,48,0.3); transition: all 0.2s; }
+.btn-secondary:hover:not(:disabled) { background: rgba(200,242,48,0.18); }
+.btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Upload option */
+.upload-option { margin-top: 10px; }
+.btn-upload { width: 100%; padding: 11px; background: var(--bg3); color: var(--text-muted); border-radius: var(--radius-sm); font-size: 0.82rem; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px dashed var(--card-border); transition: all 0.2s; }
+.btn-upload:hover { border-color: var(--accent); color: var(--accent); }
+#fileInput { display: none; }
+
+/* ── TOAST ── */
+.toast-container { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: min(90vw,360px); }
+.toast { background: var(--bg2); border: 1px solid var(--card-border); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 0.82rem; color: var(--text); animation: toastIn 0.3s var(--transition); box-shadow: var(--shadow); }
+.toast.error { border-left-color: var(--danger); }
+.toast.info  { border-left-color: var(--accent3); }
+@keyframes toastIn { from { opacity:0; transform:translateY(-14px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateY(-8px); } }
+
+/* ── STATUS BAR INDICATOR ── */
+.bg-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.65rem; font-family: var(--font-mono);
+  color: var(--text-muted); padding: 5px 8px;
+  background: var(--bg3); border-radius: 6px;
+  border: 1px solid var(--card-border);
+  margin-top: 10px;
+}
+.bg-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 360px) {
+  .app-main { padding: 12px 10px 100px; }
+  .ring-net { font-size: 1.7rem; }
+  .ring-wrapper { width: 110px; min-width: 110px; }
+  .progress-ring { width: 110px; height: 110px; }
+  .ring-section { gap: 14px; padding: 16px; }
+  .stats-row { gap: 7px; }
+  .stat-card { padding: 10px 7px; gap: 6px; }
+  .stat-icon { font-size: 16px; width: 20px; }
+  .stat-value { font-size: 0.88rem; }
+  .logo-text { font-size: 1.3rem; }
+  .nutrient-grid { grid-template-columns: repeat(2,1fr); }
+}
+
+@media (max-width: 400px) {
+  .legend-value { font-size: 0.88rem; }
+}
+
+@media (min-width: 540px) {
+  .app-main { padding: 24px 20px 110px; }
+}
+
+/* ── SHIMMER ── */
+.shimmer { background: linear-gradient(90deg,var(--bg3) 25%,var(--card-border) 50%,var(--bg3) 75%); background-size:200% 100%; animation: shimmer 1.4s infinite; border-radius:4px; height:1em; }
+@keyframes shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+
+/* ── PREVIEW THUMB ── */
+.preview-img { width:100%; border-radius:var(--radius-sm); margin-bottom:12px; max-height:160px; object-fit:cover; display:none; }
   </style>
 </head>
 <body>
@@ -65,11 +366,6 @@
         <span><i class="fa-solid fa-bullseye"></i> Günlük Kalori Hedefi</span>
         <input type="number" id="calorieGoal" min="500" max="6000" value="2000" class="setting-input" />
       </label>
-      <!-- API Key gösterimi eklendi -->
-      <label class="setting-label">
-        <span><i class="fa-solid fa-key"></i> Gemini API Key</span>
-        <input type="password" id="apiKeyInput" value="AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54" class="setting-input" readonly />
-      </label>
       <button class="btn-primary" id="saveSettings"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
     </div>
   </div>
@@ -77,7 +373,6 @@
 
 <!-- CAMERA MODAL -->
 <div id="cameraModal" class="modal-overlay hidden">
-  <!-- (Camera modal içeriği aynen kalacak) -->
   <div class="modal-card">
     <div class="modal-header">
       <h2><i class="fa-solid fa-camera"></i> Yiyecek Tara</h2>
@@ -151,7 +446,8 @@
 
 <!-- MAIN -->
 <main class="app-main">
-  <!-- Dashboard -->
+
+  <!-- DASHBOARD -->
   <section class="tab-section active" id="tab-dashboard">
     <div class="date-banner">
       <span id="todayDate"></span>
@@ -261,6 +557,7 @@
       <canvas id="macroChart"></canvas>
     </div>
   </section>
+
 </main>
 
 <button class="fab" id="scanFab"><i class="fa-solid fa-camera"></i><span class="fab-label">TARA</span></button>
@@ -477,22 +774,16 @@ const PortionEngine = {
 /* ── DATA STORE ── */
 const DataStore = {
   KEYS: { meals:'aical_meals', settings:'aical_settings', steps:'aical_steps', lastSync:'aical_lastsync' },
-  settings: { weight:70, goal:2000, apiKey:'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54' },
+  settings: { weight:70, goal:2000 },
 
   loadSettings() {
     try {
       const r = localStorage.getItem(this.KEYS.settings);
-      if (r) {
-        const saved = JSON.parse(r);
-        Object.assign(this.settings, saved);
-        // API Key'i GeminiEngine'e de set et
-        GeminiEngine.API_KEY = this.settings.apiKey;
-      }
+      if (r) Object.assign(this.settings, JSON.parse(r));
     } catch(e) {}
   },
   saveSettings() {
     localStorage.setItem(this.KEYS.settings, JSON.stringify(this.settings));
-    GeminiEngine.API_KEY = this.settings.apiKey; // API Key'i güncelle
   },
   today() {
     return new Date().toISOString().split('T')[0];
@@ -612,95 +903,55 @@ const StepTracker = {
   getBurnedCalories() { return this._burned(); },
 };
 
-/* ── GEMINI ENGINE (DÜZELTİLMİŞ) ── */
+/* ── GEMINI ENGINE ── */
 const GeminiEngine = {
-  // 🔑 API Key — localStorage'dan yüklenecek, varsayılan olarak bu değer kullanılır
+  // 🔑 API Key — buraya kendi Gemini API key'inizi girin
   API_KEY: 'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54',
 
-  // API Key'i kontrol et ve geçerli değilse hata fırlat
-  _validateApiKey() {
-    if (!this.API_KEY || this.API_KEY.trim() === '') {
-      throw new Error('Gemini API Key tanımlanmamış. Lütfen ayarlardan API Key\'inizi girin.');
-    }
-    if (this.API_KEY === 'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54') {
-      console.warn('Varsayılan API key kullanılıyor. Kendi API key\'inizi kullanmanız önerilir.');
-    }
-  },
-
   async recognizeFood(base64Image) {
-    try {
-      this._validateApiKey();
+    if (!this.API_KEY || this.API_KEY === 'BURAYA_GEMINI_API_KEY_YAZIN') {
+      throw new Error('API Key tanımlanmamış. Kodda GeminiEngine.API_KEY alanını doldurun.');
+    }
 
-      // Remove data URL prefix
-      const imageData = base64Image.split(',')[1] || base64Image;
-      const mimeType  = base64Image.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+    // Remove data URL prefix
+    const imageData = base64Image.split(',')[1] || base64Image;
+    const mimeType  = base64Image.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
 
-      const payload = {
-        contents: [{
-          parts: [
-            {
-              inline_data: { mime_type: mimeType, data: imageData }
-            },
-            {
-              text: `You are a food identification assistant. Look at this image and return ONLY the name of the single most prominent food item you see. 
+    const payload = {
+      contents: [{
+        parts: [
+          {
+            inline_data: { mime_type: mimeType, data: imageData }
+          },
+          {
+            text: `You are a food identification assistant. Look at this image and return ONLY the name of the single most prominent food item you see. 
 Rules:
 - Return ONLY one word in English, lowercase
 - No explanation, no punctuation, no nutritional info
 - If you cannot identify food, return: unknown
 - Examples of valid responses: apple, banana, pizza, chicken, salad, bread, egg, pasta`
-            }
-          ]
-        }],
-        generationConfig: { maxOutputTokens: 20, temperature: 0.1 }
-      };
+          }
+        ]
+      }],
+      generationConfig: { maxOutputTokens: 20, temperature: 0.1 }
+    };
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.API_KEY}`;
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 saniye timeout
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.API_KEY}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        const msg = err?.error?.message || `API Hatası ${response.status}`;
-        
-        // Özel hata mesajları
-        if (response.status === 403) {
-          throw new Error('API Key geçersiz veya yetkisiz. Lütfen API Key\'inizi kontrol edin.');
-        } else if (response.status === 429) {
-          throw new Error('API kotası aşıldı. Lütfen daha sonra tekrar deneyin.');
-        } else if (response.status === 400) {
-          throw new Error('Geçersiz istek. Lütfen tekrar deneyin.');
-        }
-        throw new Error(`Gemini API Hatası (${response.status}): ${msg}`);
-      }
-
-      const data = await response.json();
-      const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase() || 'unknown';
-      
-      // Temizlik: sadece harf karakterlerini al
-      const clean = raw.replace(/[^a-z]/g, '');
-      
-      if (!clean || clean === 'unknown') {
-        throw new Error('Görüntüde yiyecek tespit edilemedi.');
-      }
-      
-      return clean;
-
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        throw new Error('İstek zaman aşımına uğradı. Lütfen tekrar deneyin.');
-      }
-      throw error; // Hatayı yukarı fırlat
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      const msg = err?.error?.message || `API Hatası ${response.status}`;
+      throw new Error(`Gemini API Hatası (${response.status}): ${msg}`);
     }
+
+    const data = await response.json();
+    const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase() || 'unknown';
+    return raw.replace(/[^a-z]/g,'');
   },
 };
 
@@ -718,7 +969,7 @@ const ChartManager = {
   },
 
   renderDailyChart(intake, burned) {
-    if (this.instances.daily) this.instances.daily.destroy();
+    this.instances.daily?.destroy();
     const ctx = document.getElementById('dailyChart');
     if (!ctx) return;
     this.instances.daily = new Chart(ctx, {
@@ -734,7 +985,7 @@ const ChartManager = {
   },
 
   renderWeeklyChart(data) {
-    if (this.instances.weekly) this.instances.weekly.destroy();
+    this.instances.weekly?.destroy();
     const ctx = document.getElementById('weeklyChart');
     if (!ctx) return;
     this.instances.weekly = new Chart(ctx, {
@@ -750,7 +1001,7 @@ const ChartManager = {
   },
 
   renderMacroChart(macros) {
-    if (this.instances.macro) this.instances.macro.destroy();
+    this.instances.macro?.destroy();
     const ctx = document.getElementById('macroChart');
     if (!ctx) return;
     this.instances.macro = new Chart(ctx, {
@@ -770,7 +1021,7 @@ const ChartManager = {
   },
 };
 
-/* ── UI CONTROLLER (DÜZELTİLMİŞ) ── */
+/* ── UI CONTROLLER ── */
 const UIController = {
   toast(message, type='success', duration=3000) {
     const c = document.getElementById('toastContainer');
@@ -888,7 +1139,6 @@ const UIController = {
   openSettings() {
     document.getElementById('userWeight').value  = DataStore.settings.weight;
     document.getElementById('calorieGoal').value = DataStore.settings.goal;
-    document.getElementById('apiKeyInput').value = DataStore.settings.apiKey;
     document.getElementById('settingsModal').classList.remove('hidden');
   },
   closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); },
@@ -896,15 +1146,10 @@ const UIController = {
   saveSettings() {
     const w = parseInt(document.getElementById('userWeight').value);
     const g = parseInt(document.getElementById('calorieGoal').value);
-    const apiKey = document.getElementById('apiKeyInput').value.trim();
-    
     if (isNaN(w)||w<30||w>300) { this.toast('Geçersiz ağırlık değeri', 'error'); return; }
     if (isNaN(g)||g<500||g>6000) { this.toast('Geçersiz kalori hedefi', 'error'); return; }
-    
     DataStore.settings.weight = w;
     DataStore.settings.goal   = g;
-    if (apiKey) DataStore.settings.apiKey = apiKey;
-    
     DataStore.saveSettings();
     this.closeSettings();
     this.refreshDashboard();
@@ -912,7 +1157,7 @@ const UIController = {
   },
 };
 
-/* ── CAMERA MODULE (DÜZELTİLMİŞ) ── */
+/* ── CAMERA MODULE ── */
 const CameraModule = {
   stream: null,
   capturedImage: null,
@@ -1002,27 +1247,14 @@ const CameraModule = {
 
     try {
       const foodName = await GeminiEngine.recognizeFood(this.capturedImage);
-      
-      if (!foodName || foodName === 'unknown') {
-        throw new Error('Görüntüde yiyecek tespit edilemedi.');
-      }
+      if (!foodName || foodName === 'unknown') throw new Error('Görüntüde yiyecek tespit edilemedi.');
 
       statusText.textContent = `Tespit edildi: "${foodName}"`;
 
       const foodData = FoodDB.lookup(foodName);
       if (!foodData) {
-        // Eğer tam eşleşme yoksa, benzer yiyecekleri öner
-        const similar = Object.keys(FoodDB)
-          .filter(k => typeof FoodDB[k] === 'object')
-          .filter(k => k.includes(foodName) || foodName.includes(k))
-          .slice(0, 3)
-          .map(k => FoodDB[k].emoji + ' ' + k);
-        
-        let errorMsg = `"${foodName}" veritabanında bulunamadı.`;
-        if (similar.length > 0) {
-          errorMsg += ` Benzer: ${similar.join(', ')}`;
-        }
-        throw new Error(errorMsg);
+        const available = Object.keys(FoodDB).filter(k => typeof FoodDB[k]==='object').join(', ');
+        throw new Error(`"${foodName}" veritabanında bulunamadı. Mevcut: ${available}`);
       }
 
       const { grams, portionType } = PortionEngine.estimate(foodData.name);
@@ -1040,10 +1272,10 @@ const CameraModule = {
       document.getElementById('addMealBtn').disabled = false;
 
     } catch(err) {
-      statusText.textContent = '❌ Analiz başarısız';
+      statusText.textContent = 'Analiz başarısız';
       errorEl.textContent    = err.message;
       errorEl.classList.remove('hidden');
-      UIController.toast(err.message, 'error', 6000);
+      UIController.toast(err.message, 'error', 5000);
     }
   },
 
@@ -1091,25 +1323,16 @@ const BackgroundSync = {
   },
 };
 
-/* ── APP INIT (DÜZELTİLMİŞ) ── */
+/* ── APP INIT ── */
 const App = {
   init() {
-    DataStore.loadSettings(); // Bu API key'i GeminiEngine'e set eder
-    GeminiEngine.API_KEY = DataStore.settings.apiKey; // API key'i güncelle
-    
+    DataStore.loadSettings();
     UIController.updateDate();
     UIController.refreshDashboard();
     UIController.renderMealList();
     StepTracker.init();
     BackgroundSync.start();
     this.bindEvents();
-    
-    // API key kontrolü
-    if (!GeminiEngine.API_KEY || GeminiEngine.API_KEY.trim() === '') {
-      UIController.toast('Lütfen ayarlardan Gemini API Key\'inizi girin', 'error', 5000);
-    } else if (GeminiEngine.API_KEY === 'AIzaSyDlPatKE0OIBQgcFV0kXalcXrNgoP3eu54') {
-      UIController.toast('Varsayılan API key kullanılıyor. Ayarlardan değiştirebilirsiniz.', 'info', 4000);
-    }
   },
 
   bindEvents() {
